@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as FavoritesRouteImport } from './routes/favorites'
@@ -19,6 +20,11 @@ import { Route as ListingIdRouteImport } from './routes/listing.$id'
 import { Route as CategoryCategoryRouteImport } from './routes/category.$category'
 import { Route as AuthenticatedSellRouteImport } from './routes/_authenticated/sell'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/favorites': typeof FavoritesRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sell': typeof AuthenticatedSellRoute
   '/category/$category': typeof CategoryCategoryRoute
   '/listing/$id': typeof ListingIdRoute
@@ -80,6 +87,7 @@ export interface FileRoutesByTo {
   '/favorites': typeof FavoritesRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sell': typeof AuthenticatedSellRoute
   '/category/$category': typeof CategoryCategoryRoute
   '/listing/$id': typeof ListingIdRoute
@@ -92,6 +100,7 @@ export interface FileRoutesById {
   '/favorites': typeof FavoritesRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/sell': typeof AuthenticatedSellRoute
   '/category/$category': typeof CategoryCategoryRoute
   '/listing/$id': typeof ListingIdRoute
@@ -104,6 +113,7 @@ export interface FileRouteTypes {
     | '/favorites'
     | '/messages'
     | '/profile'
+    | '/sitemap.xml'
     | '/sell'
     | '/category/$category'
     | '/listing/$id'
@@ -114,6 +124,7 @@ export interface FileRouteTypes {
     | '/favorites'
     | '/messages'
     | '/profile'
+    | '/sitemap.xml'
     | '/sell'
     | '/category/$category'
     | '/listing/$id'
@@ -125,6 +136,7 @@ export interface FileRouteTypes {
     | '/favorites'
     | '/messages'
     | '/profile'
+    | '/sitemap.xml'
     | '/_authenticated/sell'
     | '/category/$category'
     | '/listing/$id'
@@ -137,12 +149,20 @@ export interface RootRouteChildren {
   FavoritesRoute: typeof FavoritesRoute
   MessagesRoute: typeof MessagesRoute
   ProfileRoute: typeof ProfileRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   CategoryCategoryRoute: typeof CategoryCategoryRoute
   ListingIdRoute: typeof ListingIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
@@ -227,6 +247,7 @@ const rootRouteChildren: RootRouteChildren = {
   FavoritesRoute: FavoritesRoute,
   MessagesRoute: MessagesRoute,
   ProfileRoute: ProfileRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   CategoryCategoryRoute: CategoryCategoryRoute,
   ListingIdRoute: ListingIdRoute,
 }
