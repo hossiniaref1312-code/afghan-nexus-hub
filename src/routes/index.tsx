@@ -14,8 +14,8 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: "AfghanMarket — Buy, sell & discover" },
       { name: "description", content: "Afghanistan's all-in-one marketplace: real estate, vehicles, marketplace, jobs and services." },
-      { property: "og:title", content: "AfghanMarket" },
-      { property: "og:description", content: "Afghanistan's all-in-one marketplace." },
+      { property: "og:title", content: "AfghanMarket — Buy, sell & discover" },
+      { property: "og:description", content: "Afghanistan's all-in-one marketplace: real estate, vehicles, marketplace, jobs and services." },
     ],
   }),
   component: Home,
