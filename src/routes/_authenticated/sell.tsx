@@ -61,6 +61,7 @@ function SellPage() {
           currency: "AFN",
           province: province || null,
           area_label: area || null,
+          attributes: Object.keys(attributes).length ? attributes : {},
           contact_phone: profile?.phone ?? null,
         })
         .select("id")
