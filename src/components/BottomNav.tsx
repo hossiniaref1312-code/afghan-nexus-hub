@@ -10,7 +10,7 @@ const tabs = [
   { to: "/profile", icon: User, key: "nav.profile", match: (p: string) => p.startsWith("/profile") },
 ];
 
-export function BottomNav() {
+export function BottomNav({ className = "" }: { className?: string }) {
   const t = useT();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
