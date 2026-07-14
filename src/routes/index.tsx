@@ -1,13 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Sparkles } from "lucide-react";
+import { Search, ArrowRight, PlusCircle } from "lucide-react";
+import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { LanguageThemeMenu } from "@/components/LanguageThemeMenu";
 import { CATEGORIES } from "@/lib/categories";
 import { useT } from "@/lib/i18n/I18nProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { ListingCard } from "@/components/ListingCard";
-import { useState } from "react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -25,6 +24,21 @@ function Home() {
   const t = useT();
   const [q, setQ] = useState("");
 
+  const featured = useQuery({
+    queryKey: ["featured-listings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("listings")
+        .select("id,title,price,currency,province,area_label,category,is_featured,created_at,listing_images(url,position)")
+        .eq("status", "active")
+        .eq("is_featured", true)
+        .order("created_at", { ascending: false })
+        .limit(8);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
   const recent = useQuery({
     queryKey: ["recent-listings"],
     queryFn: async () => {
@@ -32,7 +46,6 @@ function Home() {
         .from("listings")
         .select("id,title,price,currency,province,area_label,category,is_featured,created_at,listing_images(url,position)")
         .eq("status", "active")
-        .order("is_featured", { ascending: false })
         .order("created_at", { ascending: false })
         .limit(12);
       if (error) throw error;
@@ -41,61 +54,79 @@ function Home() {
   });
 
   return (
-    <AppShell>
-      {/* Hero header */}
-      <header className="px-5 pt-6">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-2">
-              <div className="bg-gradient-brand grid h-9 w-9 place-items-center rounded-xl shadow-elevated">
-                <Sparkles className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <span className="text-lg font-bold tracking-tight">{t("app.name")}</span>
-            </div>
-            <p className="mt-2 text-2xl font-bold tracking-tight text-balance">
-              {t("app.tagline")}
-            </p>
-          </div>
-          <LanguageThemeMenu />
-        </div>
-
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            // Search routes through marketplace browse for now.
+    <AppShell variant="site">
+      {/* Hero */}
+      <section className="relative overflow-hidden border-b border-border/60">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-70"
+          style={{
+            background:
+              "radial-gradient(60% 60% at 20% 10%, oklch(from var(--primary) l c h / 0.18), transparent 70%), radial-gradient(50% 50% at 90% 10%, oklch(from var(--saffron) l c h / 0.18), transparent 70%)",
           }}
-          className="mt-5"
-        >
-          <div className="flex h-12 items-center gap-2 rounded-2xl border border-border bg-card px-4 shadow-card">
-            <Search className="h-5 w-5 text-muted-foreground" />
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder={t("common.search")}
-              className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-            />
-          </div>
-        </form>
-      </header>
+        />
+        <div className="relative mx-auto max-w-6xl px-4 py-14 md:px-6 md:py-20">
+          <div className="max-w-2xl">
+            <h1 className="text-3xl font-bold tracking-tight text-balance md:text-5xl">
+              {t("hero.title")}
+            </h1>
+            <p className="mt-4 text-base text-muted-foreground md:text-lg">
+              {t("hero.subtitle")}
+            </p>
 
-      {/* Category grid */}
-      <section className="px-5 pt-7">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            <form
+              onSubmit={(e) => e.preventDefault()}
+              className="mt-6 flex h-14 items-center gap-2 rounded-2xl border border-border bg-card px-4 shadow-card"
+            >
+              <Search className="h-5 w-5 text-muted-foreground" />
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder={t("common.search")}
+                className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+              />
+              <Link
+                to="/category/$category"
+                params={{ category: "marketplace" }}
+                className="hidden rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 sm:inline-flex"
+              >
+                {t("hero.cta.browse")}
+              </Link>
+            </form>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              <Link
+                to="/category/$category"
+                params={{ category: "marketplace" }}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent"
+              >
+                {t("hero.cta.browse")} <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                to="/sell"
+                className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+              >
+                <PlusCircle className="h-4 w-4" /> {t("hero.cta.post")}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Categories */}
+      <section className="mx-auto max-w-6xl px-4 pt-10 md:px-6 md:pt-14">
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
           {t("home.categories")}
         </h2>
-        <div className="grid grid-cols-2 gap-3">
-          {CATEGORIES.map((c, i) => {
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+          {CATEGORIES.map((c) => {
             const Icon = c.icon;
-            // Make first card span 2 cols for a more bespoke layout
-            const featured = i === 0;
             return (
               <Link
                 key={c.key}
                 to="/category/$category"
                 params={{ category: c.key }}
-                className={`tap-highlight-none group relative overflow-hidden rounded-3xl border border-border bg-card p-4 shadow-card transition-transform active:scale-[0.98] ${
-                  featured ? "col-span-2 min-h-[140px]" : "min-h-[130px]"
-                }`}
+                className="tap-highlight-none group relative overflow-hidden rounded-3xl border border-border bg-card p-5 shadow-card transition-transform hover:-translate-y-0.5 active:scale-[0.98]"
               >
                 <div className={`grid h-12 w-12 place-items-center rounded-2xl ${c.tile}`}>
                   <Icon className="h-7 w-7" />
@@ -110,19 +141,50 @@ function Home() {
         </div>
       </section>
 
-      {/* Recent listings */}
-      <section className="px-5 pt-8">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-          {t("home.recent")}
-        </h2>
+      {/* Featured */}
+      <section className="mx-auto max-w-6xl px-4 pt-12 md:px-6">
+        <div className="mb-4 flex items-end justify-between">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            {t("home.featured")}
+          </h2>
+        </div>
+        {featured.isLoading ? (
+          <div className="text-sm text-muted-foreground">{t("common.loading")}</div>
+        ) : !featured.data || featured.data.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+            {t("home.featured.empty")}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            {featured.data.map((l) => (
+              <ListingCard key={l.id} listing={l} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Recent */}
+      <section className="mx-auto max-w-6xl px-4 pt-12 md:px-6">
+        <div className="mb-4 flex items-end justify-between">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            {t("home.recent")}
+          </h2>
+        </div>
         {recent.isLoading ? (
           <div className="text-sm text-muted-foreground">{t("common.loading")}</div>
         ) : !recent.data || recent.data.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-            {t("common.noResults")}
+          <div className="rounded-2xl border border-dashed border-border p-8 text-center">
+            <div className="text-base font-semibold text-foreground">{t("home.recent.empty.title")}</div>
+            <div className="mt-1 text-sm text-muted-foreground">{t("home.recent.empty.body")}</div>
+            <Link
+              to="/sell"
+              className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+            >
+              <PlusCircle className="h-4 w-4" /> {t("hero.cta.post")}
+            </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             {recent.data.map((l) => (
               <ListingCard key={l.id} listing={l} />
             ))}
