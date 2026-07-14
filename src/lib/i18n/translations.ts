@@ -150,6 +150,30 @@ const en: Dict = {
   "browse.empty.title": "No listings here yet",
   "browse.empty.body": "Be the first to post in this category.",
   "browse.cta": "Post the first listing",
+
+  "hero.title": "Afghanistan's marketplace, in your language.",
+  "hero.subtitle": "Discover real estate, vehicles, jobs, services and everyday goods from trusted sellers across every province.",
+  "hero.cta.browse": "Browse marketplace",
+  "hero.cta.post": "Post a listing",
+
+  "nav.browse": "Browse",
+  "nav.about": "About",
+  "nav.menu": "Menu",
+  "nav.close": "Close",
+
+  "home.featured.empty": "Featured listings will appear here as sellers join.",
+  "home.recent.empty.title": "No listings yet",
+  "home.recent.empty.body": "Be the first to publish a listing on AfghanMarket.",
+
+  "footer.tagline": "Buy, sell and discover across Afghanistan.",
+  "footer.explore": "Explore",
+  "footer.company": "Company",
+  "footer.legal": "Legal",
+  "footer.about": "About AfghanMarket",
+  "footer.contact": "Contact",
+  "footer.terms": "Terms of use",
+  "footer.privacy": "Privacy policy",
+  "footer.rights": "All rights reserved.",
 };
 
 const fa: Dict = {
