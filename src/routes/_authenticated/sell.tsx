@@ -7,8 +7,9 @@ import { AppShell } from "@/components/AppShell";
 import { useT } from "@/lib/i18n/I18nProvider";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
-import { CATEGORIES } from "@/lib/categories";
+import { CATEGORIES, type CategoryKey } from "@/lib/categories";
 import { AF_PROVINCES } from "@/lib/provinces";
+import { CategoryAttributeFields } from "@/components/CategoryAttributeFields";
 
 export const Route = createFileRoute("/_authenticated/sell")({
   validateSearch: z.object({
@@ -24,13 +25,14 @@ function SellPage() {
   const { user } = useAuth();
   const search = useSearch({ from: "/_authenticated/sell" });
 
-  const [category, setCategory] = useState(search.category ?? "marketplace");
+  const [category, setCategory] = useState<CategoryKey>((search.category as CategoryKey) ?? "marketplace");
   const [purpose, setPurpose] = useState<"sell" | "rent" | "buy" | "hire" | "offer">("sell");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState<string>("");
   const [province, setProvince] = useState("");
   const [area, setArea] = useState("");
+  const [attributes, setAttributes] = useState<Record<string, string>>({});
   const [files, setFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
