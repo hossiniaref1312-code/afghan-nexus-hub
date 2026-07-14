@@ -332,11 +332,74 @@ const ps: Dict = {
   "auth.city": "ښار",
 };
 
+const uz: Dict = {
+  "app.name": "AfghanMarket",
+  "app.tagline": "Afgʻoniston boʻylab soting, sotib oling va kashf eting",
+
+  "nav.home": "Bosh sahifa",
+  "nav.favorites": "Saqlanganlar",
+  "nav.sell": "Eʼlon",
+  "nav.messages": "Xabarlar",
+  "nav.profile": "Profil",
+  "nav.browse": "Koʻrish",
+  "nav.about": "Biz haqimizda",
+  "nav.menu": "Menyu",
+  "nav.close": "Yopish",
+
+  "common.search": "Eʼlonlarni qidiring…",
+  "common.loading": "Yuklanmoqda…",
+  "common.signin": "Kirish",
+  "common.signup": "Roʻyxatdan oʻtish",
+  "common.signout": "Chiqish",
+  "common.contactSeller": "Sotuvchi bilan bogʻlanish",
+  "common.noResults": "Hozircha hech narsa yoʻq.",
+
+  "cat.real_estate": "Koʻchmas mulk",
+  "cat.vehicles": "Transport",
+  "cat.marketplace": "Bozor",
+  "cat.jobs": "Ish oʻrinlari",
+  "cat.services": "Xizmatlar va reklama",
+
+  "cat.real_estate.sub": "Uylar, kvartiralar, yer",
+  "cat.vehicles.sub": "Avtomobillar, mototsikllar, ijara",
+  "cat.marketplace.sub": "Yangi va ishlatilgan mahsulotlar",
+  "cat.jobs.sub": "Ishga oling yoki ish toping",
+  "cat.services.sub": "Biznesingizni reklama qiling",
+
+  "home.categories": "Toifalar",
+  "home.featured": "Tanlangan",
+  "home.recent": "Yangi eʼlonlar",
+  "home.featured.empty": "Sotuvchilar qoʻshilishi bilan bu yerda tanlangan eʼlonlar paydo boʻladi.",
+  "home.recent.empty.title": "Hozircha eʼlonlar yoʻq",
+  "home.recent.empty.body": "AfghanMarket’da birinchi eʼlon bering.",
+
+  "hero.title": "Afgʻoniston bozori — sizning tilingizda.",
+  "hero.subtitle": "Har viloyatdan ishonchli sotuvchilardan koʻchmas mulk, transport, ish oʻrinlari, xizmatlar va kundalik tovarlarni toping.",
+  "hero.cta.browse": "Bozorni koʻrish",
+  "hero.cta.post": "Eʼlon berish",
+
+  "footer.tagline": "Afgʻoniston boʻylab soting, sotib oling va kashf eting.",
+  "footer.explore": "Koʻrish",
+  "footer.company": "Kompaniya",
+  "footer.legal": "Huquqiy",
+  "footer.about": "AfghanMarket haqida",
+  "footer.contact": "Aloqa",
+  "footer.terms": "Foydalanish shartlari",
+  "footer.privacy": "Maxfiylik siyosati",
+  "footer.rights": "Barcha huquqlar himoyalangan.",
+
+  "settings.language": "Til",
+  "settings.theme": "Mavzu",
+  "settings.theme.light": "Yorugʻ",
+  "settings.theme.dark": "Qorongʻu",
+  "settings.theme.system": "Tizim",
+};
+
 // Stub maps for other languages — they fall back to English until translated.
 const empty: Dict = {};
 
 export const translations: Record<LangCode, Dict> = {
-  en, fa, ps,
+  en, fa, ps, uz,
   ar: empty, fa_IR: empty, ur: empty, hi: empty, tr: empty, de: empty,
   fr: empty, es: empty, it: empty, pt: empty, nl: empty, sv: empty, no: empty,
   da: empty, fi: empty, pl: empty, cs: empty, ro: empty, el: empty, ru: empty,
