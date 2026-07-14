@@ -22,6 +22,7 @@ function detectInitialLang(): LangCode {
   if (nav.startsWith("ps")) return "ps";
   if (nav.startsWith("fa")) return "fa_IR";
   if (nav.startsWith("ar")) return "ar";
+  if (nav.startsWith("uz")) return "uz";
   if (nav.startsWith("ur")) return "ur";
   if (nav.startsWith("zh-tw") || nav.startsWith("zh-hk")) return "zh_TW";
   if (nav.startsWith("zh")) return "zh_CN";
