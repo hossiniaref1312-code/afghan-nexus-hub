@@ -1,16 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 import { ChevronLeft, Plus } from "lucide-react";
 import { z } from "zod";
 import { AppShell } from "@/components/AppShell";
 import { ListingCard } from "@/components/ListingCard";
 import { LanguageThemeMenu } from "@/components/LanguageThemeMenu";
-import { CATEGORIES, getCategory } from "@/lib/categories";
+import { CategoryFilters, DEFAULT_FILTERS, type FiltersState } from "@/components/CategoryFilters";
+import { CATEGORIES, getCategory, type CategoryKey } from "@/lib/categories";
 import { useT } from "@/lib/i18n/I18nProvider";
 import { supabase } from "@/integrations/supabase/client";
 
+const CategoryEnum = z.enum(["real_estate", "vehicles", "marketplace", "jobs", "services"]);
+
 export const Route = createFileRoute("/category/$category")({
-  parseParams: (p) => ({ category: z.enum(["real_estate", "vehicles", "marketplace", "jobs", "services"]).parse(p.category) }),
+  parseParams: (p) => ({ category: CategoryEnum.parse(p.category) }),
   head: ({ params }) => ({
     meta: [
       { title: `${categoryLabel(params.category)} — AfghanMarket` },
@@ -33,21 +37,43 @@ function CategoryPage() {
   const { category } = Route.useParams();
   const def = getCategory(category)!;
   const Icon = def.icon;
+  const [filters, setFilters] = useState<FiltersState>(DEFAULT_FILTERS);
 
   const listings = useQuery({
-    queryKey: ["listings", category],
+    queryKey: ["listings", category, filters.purpose, filters.province, filters.priceMin, filters.priceMax, filters.sort, filters.q],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let q = supabase
         .from("listings")
-        .select("id,title,price,currency,province,area_label,category,is_featured,created_at,listing_images(url,position)")
-        .eq("category", category)
-        .eq("status", "active")
-        .order("is_featured", { ascending: false })
-        .order("created_at", { ascending: false });
+        .select("id,title,price,currency,province,area_label,category,is_featured,attributes,created_at,listing_images(url,position)")
+        .eq("category", category as CategoryKey)
+        .eq("status", "active");
+
+      if (filters.purpose) q = q.eq("purpose", filters.purpose);
+      if (filters.province) q = q.eq("province", filters.province);
+      if (filters.priceMin != null) q = q.gte("price", filters.priceMin);
+      if (filters.priceMax != null) q = q.lte("price", filters.priceMax);
+      if (filters.q) q = q.ilike("title", `%${filters.q}%`);
+
+      if (filters.sort === "priceAsc") q = q.order("price", { ascending: true, nullsFirst: false });
+      else if (filters.sort === "priceDesc") q = q.order("price", { ascending: false, nullsFirst: false });
+      else q = q.order("is_featured", { ascending: false }).order("created_at", { ascending: false });
+
+      const { data, error } = await q.limit(200);
       if (error) throw error;
       return data ?? [];
     },
   });
+
+  // Client-side filter on jsonb attributes for MVP.
+  const results = useMemo(() => {
+    const rows = listings.data ?? [];
+    const attrs = Object.entries(filters.attrs).filter(([, v]) => v);
+    if (attrs.length === 0) return rows;
+    return rows.filter((r) => {
+      const a = (r.attributes ?? {}) as Record<string, unknown>;
+      return attrs.every(([k, v]) => String(a[k] ?? "").toLowerCase().includes(String(v).toLowerCase()));
+    });
+  }, [listings.data, filters.attrs]);
 
   return (
     <AppShell>
@@ -67,10 +93,17 @@ function CategoryPage() {
         </div>
       </header>
 
+      <CategoryFilters
+        category={category as CategoryKey}
+        value={filters}
+        onChange={setFilters}
+        resultsCount={listings.isSuccess ? results.length : undefined}
+      />
+
       <div className="px-5 pt-4">
         {listings.isLoading ? (
           <div className="text-sm text-muted-foreground">{t("common.loading")}</div>
-        ) : !listings.data || listings.data.length === 0 ? (
+        ) : results.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-border p-8 text-center">
             <div className={`mx-auto grid h-14 w-14 place-items-center rounded-2xl ${def.tile}`}>
               <Icon className="h-7 w-7" />
@@ -87,7 +120,7 @@ function CategoryPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3 pb-4">
-            {listings.data.map((l) => (
+            {results.map((l) => (
               <ListingCard key={l.id} listing={l} />
             ))}
           </div>
