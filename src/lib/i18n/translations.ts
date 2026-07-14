@@ -3,7 +3,7 @@
 // Missing keys fall back to English.
 
 export type LangCode =
-  | "en" | "fa" | "ps" | "ar" | "de" | "tr" | "fa_IR" | "ur" | "hi"
+  | "en" | "fa" | "ps" | "uz" | "ar" | "de" | "tr" | "fa_IR" | "ur" | "hi"
   | "ru" | "zh_CN" | "zh_TW" | "fr" | "es" | "it" | "pt" | "nl" | "sv"
   | "no" | "da" | "fi" | "pl" | "cs" | "ro" | "el" | "ja" | "ko";
 
@@ -11,6 +11,7 @@ export const LANGUAGES: { code: LangCode; name: string; native: string; rtl?: bo
   { code: "en", name: "English", native: "English" },
   { code: "fa", name: "Dari", native: "دری", rtl: true },
   { code: "ps", name: "Pashto", native: "پښتو", rtl: true },
+  { code: "uz", name: "Uzbek", native: "Oʻzbekcha" },
   { code: "ar", name: "Arabic", native: "العربية", rtl: true },
   { code: "fa_IR", name: "Persian", native: "فارسی", rtl: true },
   { code: "ur", name: "Urdu", native: "اردو", rtl: true },
