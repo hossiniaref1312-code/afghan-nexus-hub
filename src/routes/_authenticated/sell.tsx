@@ -198,6 +198,10 @@ function SellPage() {
           />
         </Field>
 
+        <CategoryAttributeFields category={category} value={attributes} onChange={setAttributes} />
+
+
+
         <Field label={t("post.field.images")}>
           <div className="grid grid-cols-4 gap-2">
             {files.map((f, i) => (
