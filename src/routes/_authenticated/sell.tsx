@@ -116,7 +116,7 @@ function SellPage() {
                 <button
                   key={c.key}
                   type="button"
-                  onClick={() => setCategory(c.key)}
+                  onClick={() => { setCategory(c.key); setAttributes({}); }}
                   className={`flex flex-col items-center gap-1 rounded-2xl border p-3 text-xs transition-all ${
                     active ? "border-primary bg-primary/5 text-primary font-semibold" : "border-border bg-card text-muted-foreground"
                   }`}
