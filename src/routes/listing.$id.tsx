@@ -216,6 +216,16 @@ function ListingDetail() {
           </a>
         )}
 
+        {l.user_id !== user?.id && (
+          <button
+            onClick={startChat}
+            className="tap-highlight-none flex w-full items-center justify-center gap-2 rounded-2xl border border-primary bg-card py-4 text-base font-semibold text-primary shadow-card transition-colors hover:bg-primary hover:text-primary-foreground"
+          >
+            <MessageCircle className="h-5 w-5" />
+            {t("chat.startWithSeller")}
+          </button>
+        )}
+
         <button
           onClick={reportListing}
           className="flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-card py-3 text-sm text-muted-foreground transition-colors hover:text-destructive"
