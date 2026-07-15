@@ -14,6 +14,117 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_orders: {
+        Row: {
+          activated_at: string | null
+          admin_note: string | null
+          amount_afn: number
+          created_at: string
+          expires_at: string | null
+          id: string
+          listing_id: string
+          method: Database["public"]["Enums"]["ad_payment_method"]
+          package_id: string
+          payer_phone: string | null
+          reference: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["ad_order_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activated_at?: string | null
+          admin_note?: string | null
+          amount_afn: number
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          listing_id: string
+          method: Database["public"]["Enums"]["ad_payment_method"]
+          package_id: string
+          payer_phone?: string | null
+          reference?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["ad_order_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activated_at?: string | null
+          admin_note?: string | null
+          amount_afn?: number
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          listing_id?: string
+          method?: Database["public"]["Enums"]["ad_payment_method"]
+          package_id?: string
+          payer_phone?: string | null
+          reference?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["ad_order_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_orders_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ad_orders_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "ad_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ad_packages: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          duration_days: number
+          id: string
+          key: string
+          name: string
+          price_afn: number
+          sort_order: number
+          tier: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          duration_days: number
+          id?: string
+          key: string
+          name: string
+          price_afn: number
+          sort_order?: number
+          tier?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          duration_days?: number
+          id?: string
+          key?: string
+          name?: string
+          price_afn?: number
+          sort_order?: number
+          tier?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           buyer_id: string
@@ -323,6 +434,13 @@ export type Database = {
       }
     }
     Enums: {
+      ad_order_status: "pending" | "active" | "rejected" | "expired"
+      ad_payment_method:
+        | "mpaisa"
+        | "myMoney"
+        | "hesab_pay"
+        | "bank_transfer"
+        | "cash"
       app_role: "admin" | "moderator" | "user"
       listing_category:
         | "real_estate"
@@ -459,6 +577,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      ad_order_status: ["pending", "active", "rejected", "expired"],
+      ad_payment_method: [
+        "mpaisa",
+        "myMoney",
+        "hesab_pay",
+        "bank_transfer",
+        "cash",
+      ],
       app_role: ["admin", "moderator", "user"],
       listing_category: [
         "real_estate",
