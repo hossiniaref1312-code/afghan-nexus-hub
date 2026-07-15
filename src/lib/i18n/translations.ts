@@ -245,6 +245,17 @@ const en: Dict = {
   "attr.service_type.education": "Education",
   "attr.service_type.events": "Events",
   "attr.service_type.other": "Other",
+
+  "chat.title": "Messages",
+  "chat.empty.title": "No conversations yet",
+  "chat.empty.body": "Start a chat from any listing to see it here.",
+  "chat.startWithSeller": "Chat with seller",
+  "chat.placeholder": "Write a message…",
+  "chat.send": "Send",
+  "chat.you": "You",
+  "chat.self": "This is your own listing.",
+  "chat.signInRequired": "Sign in to start a chat.",
+  "chat.back": "Back",
 };
 
 const fa: Dict = {
