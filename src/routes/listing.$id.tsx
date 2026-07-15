@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, Phone, Heart, Flag, MapPin, Clock } from "lucide-react";
+import { ChevronLeft, Phone, Heart, Flag, MapPin, Clock, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
@@ -77,6 +77,46 @@ function ListingDetail() {
     if (error) toast.error(error.message);
     else toast.success("Report submitted.");
   }
+
+  async function startChat() {
+    if (!user) {
+      navigate({ to: "/auth", search: { redirect: window.location.pathname } });
+      return;
+    }
+    const listing = q.data;
+    if (!listing) return;
+    if (listing.user_id === user.id) {
+      toast.info(t("chat.self"));
+      return;
+    }
+    // Find existing conversation
+    const { data: existing } = await supabase
+      .from("conversations")
+      .select("id")
+      .eq("listing_id", listing.id)
+      .eq("buyer_id", user.id)
+      .eq("seller_id", listing.user_id)
+      .maybeSingle();
+    let convId = existing?.id;
+    if (!convId) {
+      const { data: created, error } = await supabase
+        .from("conversations")
+        .insert({
+          listing_id: listing.id,
+          buyer_id: user.id,
+          seller_id: listing.user_id,
+        })
+        .select("id")
+        .single();
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      convId = created.id;
+    }
+    navigate({ to: "/messages/$id", params: { id: convId } });
+  }
+
 
   if (q.isLoading) {
     return (
@@ -174,6 +214,16 @@ function ListingDetail() {
             <Phone className="h-5 w-5" />
             {t("listing.contact")}
           </a>
+        )}
+
+        {l.user_id !== user?.id && (
+          <button
+            onClick={startChat}
+            className="tap-highlight-none flex w-full items-center justify-center gap-2 rounded-2xl border border-primary bg-card py-4 text-base font-semibold text-primary shadow-card transition-colors hover:bg-primary hover:text-primary-foreground"
+          >
+            <MessageCircle className="h-5 w-5" />
+            {t("chat.startWithSeller")}
+          </button>
         )}
 
         <button

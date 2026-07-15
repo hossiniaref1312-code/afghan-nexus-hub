@@ -245,6 +245,17 @@ const en: Dict = {
   "attr.service_type.education": "Education",
   "attr.service_type.events": "Events",
   "attr.service_type.other": "Other",
+
+  "chat.title": "Messages",
+  "chat.empty.title": "No conversations yet",
+  "chat.empty.body": "Start a chat from any listing to see it here.",
+  "chat.startWithSeller": "Chat with seller",
+  "chat.placeholder": "Write a message…",
+  "chat.send": "Send",
+  "chat.you": "You",
+  "chat.self": "This is your own listing.",
+  "chat.signInRequired": "Sign in to start a chat.",
+  "chat.back": "Back",
 };
 
 const fa: Dict = {
@@ -386,6 +397,17 @@ const fa: Dict = {
   "attr.experience": "تجربه",
   "attr.salary_period": "دوره حقوق",
   "attr.service_type": "نوع خدمت",
+
+  "chat.title": "پیام‌ها",
+  "chat.empty.title": "هنوز گفتگویی ندارید",
+  "chat.empty.body": "از هر آگهی می‌توانید گفتگو را شروع کنید.",
+  "chat.startWithSeller": "گفتگو با فروشنده",
+  "chat.placeholder": "پیام بنویسید…",
+  "chat.send": "ارسال",
+  "chat.you": "شما",
+  "chat.self": "این آگهی خود شماست.",
+  "chat.signInRequired": "برای شروع گفتگو وارد شوید.",
+  "chat.back": "بازگشت",
 };
 
 const ps: Dict = {
