@@ -1,6 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { LogOut, User as UserIcon, MessageCircle } from "lucide-react";
+import { LogOut, User as UserIcon, MessageCircle, ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { LanguageThemeMenu } from "@/components/LanguageThemeMenu";
 import { useT } from "@/lib/i18n/I18nProvider";
