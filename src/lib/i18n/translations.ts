@@ -256,6 +256,33 @@ const en: Dict = {
   "chat.self": "This is your own listing.",
   "chat.signInRequired": "Sign in to start a chat.",
   "chat.back": "Back",
+
+  "promote.title": "Boost this listing",
+  "promote.subtitle": "Feature your listing at the top of search results and category pages.",
+  "promote.pickPackage": "Choose a package",
+  "promote.pickMethod": "Payment method",
+  "promote.reference": "Transaction reference / ID",
+  "promote.reference.help": "Paste the confirmation number you received after paying.",
+  "promote.payerPhone": "Sender phone",
+  "promote.submit": "Submit for review",
+  "promote.pending": "Payment submitted. Our team will verify and activate within 24 hours.",
+  "promote.sendTo": "Send payment to",
+  "promote.days": "days",
+  "promote.badge.featured": "Featured",
+  "promote.button": "Boost listing",
+  "promote.myOrders": "My boost orders",
+  "promote.status.pending": "Pending review",
+  "promote.status.active": "Active",
+  "promote.status.rejected": "Rejected",
+  "promote.status.expired": "Expired",
+
+  "admin.title": "Admin",
+  "admin.ads": "Ad orders",
+  "admin.approve": "Approve",
+  "admin.reject": "Reject",
+  "admin.note": "Internal note",
+  "admin.empty": "No pending orders.",
+  "admin.notAllowed": "Admin access only.",
 };
 
 const fa: Dict = {
