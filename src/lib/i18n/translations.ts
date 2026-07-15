@@ -397,6 +397,17 @@ const fa: Dict = {
   "attr.experience": "تجربه",
   "attr.salary_period": "دوره حقوق",
   "attr.service_type": "نوع خدمت",
+
+  "chat.title": "پیام‌ها",
+  "chat.empty.title": "هنوز گفتگویی ندارید",
+  "chat.empty.body": "از هر آگهی می‌توانید گفتگو را شروع کنید.",
+  "chat.startWithSeller": "گفتگو با فروشنده",
+  "chat.placeholder": "پیام بنویسید…",
+  "chat.send": "ارسال",
+  "chat.you": "شما",
+  "chat.self": "این آگهی خود شماست.",
+  "chat.signInRequired": "برای شروع گفتگو وارد شوید.",
+  "chat.back": "بازگشت",
 };
 
 const ps: Dict = {
