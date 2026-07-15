@@ -41,6 +41,21 @@ function Profile() {
     },
     enabled: !!user,
   });
+  const adminCheck = useQuery({
+    queryKey: ["is-admin", user?.id],
+    queryFn: async () => {
+      if (!user) return false;
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      return !!data;
+    },
+    enabled: !!user,
+  });
+
 
   async function signOut() {
     await supabase.auth.signOut();
