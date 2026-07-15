@@ -234,6 +234,17 @@ function ListingDetail() {
           </button>
         )}
 
+        {l.user_id === user?.id && (
+          <Link
+            to="/promote/$id"
+            params={{ id }}
+            className="tap-highlight-none flex w-full items-center justify-center gap-2 rounded-2xl border border-primary bg-primary/5 py-4 text-base font-semibold text-primary shadow-card"
+          >
+            <Sparkles className="h-5 w-5" />
+            {t("promote.button")}
+          </Link>
+        )}
+
         <button
           onClick={reportListing}
           className="flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-card py-3 text-sm text-muted-foreground transition-colors hover:text-destructive"
