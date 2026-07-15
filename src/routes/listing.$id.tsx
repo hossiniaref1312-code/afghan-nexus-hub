@@ -115,6 +115,8 @@ function ListingDetail() {
       convId = created.id;
     }
     navigate({ to: "/messages/$id", params: { id: convId } });
+  }
+
 
   if (q.isLoading) {
     return (
