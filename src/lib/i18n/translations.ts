@@ -435,6 +435,33 @@ const fa: Dict = {
   "chat.self": "این آگهی خود شماست.",
   "chat.signInRequired": "برای شروع گفتگو وارد شوید.",
   "chat.back": "بازگشت",
+
+  "promote.title": "تبلیغ این آگهی",
+  "promote.subtitle": "آگهی خود را در صدر نتایج جستجو و صفحات دسته‌بندی نمایش دهید.",
+  "promote.pickPackage": "بسته را انتخاب کنید",
+  "promote.pickMethod": "روش پرداخت",
+  "promote.reference": "شماره تراکنش",
+  "promote.reference.help": "کد تأییدی را که پس از پرداخت دریافت کردید وارد کنید.",
+  "promote.payerPhone": "شماره پرداخت‌کننده",
+  "promote.submit": "ثبت برای بررسی",
+  "promote.pending": "پرداخت ثبت شد. تیم ما در کمتر از ۲۴ ساعت آن را بررسی و فعال می‌کند.",
+  "promote.sendTo": "مبلغ را بفرستید به",
+  "promote.days": "روز",
+  "promote.badge.featured": "ویژه",
+  "promote.button": "ارتقاء آگهی",
+  "promote.myOrders": "سفارش‌های تبلیغ من",
+  "promote.status.pending": "در انتظار بررسی",
+  "promote.status.active": "فعال",
+  "promote.status.rejected": "رد شد",
+  "promote.status.expired": "پایان یافته",
+
+  "admin.title": "پنل مدیریت",
+  "admin.ads": "سفارش‌های تبلیغات",
+  "admin.approve": "تأیید",
+  "admin.reject": "رد",
+  "admin.note": "یادداشت داخلی",
+  "admin.empty": "سفارشی در انتظار نیست.",
+  "admin.notAllowed": "فقط مدیر دسترسی دارد.",
 };
 
 const ps: Dict = {
