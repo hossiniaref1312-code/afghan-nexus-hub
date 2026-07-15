@@ -107,6 +107,16 @@ function Profile() {
             )}
           </div>
 
+          {adminCheck.data && (
+            <Link
+              to="/admin/ads"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-primary bg-primary/5 py-3 text-sm font-semibold text-primary"
+            >
+              <ShieldCheck className="h-4 w-4" />
+              {t("admin.ads")}
+            </Link>
+          )}
+
           <button
             onClick={signOut}
             className="flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-card py-3 text-sm font-medium text-destructive"
