@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, Phone, Heart, Flag, MapPin, Clock, MessageCircle } from "lucide-react";
+import { ChevronLeft, Phone, Heart, Flag, MapPin, Clock, MessageCircle, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
@@ -180,7 +180,15 @@ function ListingDetail() {
           <div className="text-primary text-2xl font-bold">
             {l.price ? `${new Intl.NumberFormat("en-US").format(Number(l.price))} ${l.currency}` : t("common.free")}
           </div>
-          <h1 className="mt-1 text-xl font-bold tracking-tight">{l.title}</h1>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <h1 className="text-xl font-bold tracking-tight">{l.title}</h1>
+            {l.is_featured && (
+              <span className="bg-gradient-brand text-primary-foreground inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold">
+                <Sparkles className="h-3 w-3" />
+                {t("promote.badge.featured")}
+              </span>
+            )}
+          </div>
           <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
             {l.province && (
               <span className="flex items-center gap-1">
@@ -224,6 +232,17 @@ function ListingDetail() {
             <MessageCircle className="h-5 w-5" />
             {t("chat.startWithSeller")}
           </button>
+        )}
+
+        {l.user_id === user?.id && (
+          <Link
+            to="/promote/$id"
+            params={{ id }}
+            className="tap-highlight-none flex w-full items-center justify-center gap-2 rounded-2xl border border-primary bg-primary/5 py-4 text-base font-semibold text-primary shadow-card"
+          >
+            <Sparkles className="h-5 w-5" />
+            {t("promote.button")}
+          </Link>
         )}
 
         <button

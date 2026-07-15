@@ -1,6 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { LogOut, User as UserIcon, MessageCircle } from "lucide-react";
+import { LogOut, User as UserIcon, MessageCircle, ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { LanguageThemeMenu } from "@/components/LanguageThemeMenu";
 import { useT } from "@/lib/i18n/I18nProvider";
@@ -41,6 +41,21 @@ function Profile() {
     },
     enabled: !!user,
   });
+  const adminCheck = useQuery({
+    queryKey: ["is-admin", user?.id],
+    queryFn: async () => {
+      if (!user) return false;
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      return !!data;
+    },
+    enabled: !!user,
+  });
+
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -91,6 +106,16 @@ function Profile() {
               </div>
             )}
           </div>
+
+          {adminCheck.data && (
+            <Link
+              to="/admin/ads"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-primary bg-primary/5 py-3 text-sm font-semibold text-primary"
+            >
+              <ShieldCheck className="h-4 w-4" />
+              {t("admin.ads")}
+            </Link>
+          )}
 
           <button
             onClick={signOut}
