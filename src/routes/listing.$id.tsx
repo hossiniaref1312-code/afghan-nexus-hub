@@ -78,6 +78,44 @@ function ListingDetail() {
     else toast.success("Report submitted.");
   }
 
+  async function startChat() {
+    if (!user) {
+      navigate({ to: "/auth", search: { redirect: window.location.pathname } });
+      return;
+    }
+    const listing = q.data;
+    if (!listing) return;
+    if (listing.user_id === user.id) {
+      toast.info(t("chat.self"));
+      return;
+    }
+    // Find existing conversation
+    const { data: existing } = await supabase
+      .from("conversations")
+      .select("id")
+      .eq("listing_id", listing.id)
+      .eq("buyer_id", user.id)
+      .eq("seller_id", listing.user_id)
+      .maybeSingle();
+    let convId = existing?.id;
+    if (!convId) {
+      const { data: created, error } = await supabase
+        .from("conversations")
+        .insert({
+          listing_id: listing.id,
+          buyer_id: user.id,
+          seller_id: listing.user_id,
+        })
+        .select("id")
+        .single();
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      convId = created.id;
+    }
+    navigate({ to: "/messages/$id", params: { id: convId } });
+
   if (q.isLoading) {
     return (
       <AppShell hideNav>
