@@ -55,12 +55,12 @@ function AdminHome() {
     );
   }
 
-  const tiles = [
+  const tiles: { to: string; icon: typeof Users; label: string; value: number | undefined; accent?: boolean }[] = [
     { to: "/admin/users", icon: Users, label: t("admin.users"), value: stats.data?.users },
     { to: "/admin/listings", icon: PackageSearch, label: t("admin.listings"), value: stats.data?.listings },
     { to: "/admin/ads", icon: Megaphone, label: t("admin.ads"), value: stats.data?.pendingAds, accent: true },
     { to: "/admin/reports", icon: Flag, label: t("admin.reports"), value: stats.data?.openReports, accent: true },
-  ] as const;
+  ];
 
   return (
     <AppShell>
