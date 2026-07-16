@@ -108,7 +108,7 @@ function AdminReportsPage() {
                 <div className="min-w-0">
                   <Link
                     to="/listing/$id"
-                    params={{ id: r.listing_id }}
+                    params={{ id: r.listing_id ?? "" }}
                     className="truncate font-semibold hover:underline"
                   >
                     {listing?.title ?? r.listing_id}
