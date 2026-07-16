@@ -65,18 +65,11 @@ function Home() {
               "radial-gradient(60% 60% at 20% 10%, oklch(from var(--primary) l c h / 0.18), transparent 70%), radial-gradient(50% 50% at 90% 10%, oklch(from var(--saffron) l c h / 0.18), transparent 70%)",
           }}
         />
-        <div className="relative mx-auto max-w-6xl px-4 py-14 md:px-6 md:py-20">
+        <div className="relative mx-auto max-w-6xl px-4 py-8 md:px-6 md:py-12">
           <div className="max-w-2xl">
-            <h1 className="text-3xl font-bold tracking-tight text-balance md:text-5xl">
-              {t("hero.title")}
-            </h1>
-            <p className="mt-4 text-base text-muted-foreground md:text-lg">
-              {t("hero.subtitle")}
-            </p>
-
             <form
               onSubmit={(e) => e.preventDefault()}
-              className="mt-6 flex h-14 items-center gap-2 rounded-2xl border border-border bg-card px-4 shadow-card"
+              className="flex h-14 items-center gap-2 rounded-2xl border border-border bg-card px-4 shadow-card"
             >
               <Search className="h-5 w-5 text-muted-foreground" />
               <input
@@ -94,7 +87,7 @@ function Home() {
               </Link>
             </form>
 
-            <div className="mt-5 flex flex-wrap gap-2">
+            <div className="mt-4 flex flex-wrap gap-2">
               <Link
                 to="/category/$category"
                 params={{ category: "marketplace" }}
