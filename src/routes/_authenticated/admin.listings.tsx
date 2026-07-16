@@ -18,7 +18,7 @@ function AdminListingsPage() {
   const { user } = useAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [q, setQ] = useState("");
-  const [status, setStatus] = useState<"all" | "active" | "removed">("all");
+  const [status, setStatus] = useState<"all" | "active" | "rejected">("all");
 
   useEffect(() => {
     if (!user) return;
@@ -50,7 +50,7 @@ function AdminListingsPage() {
 
   async function removeListing(id: string) {
     if (!window.confirm("Remove this listing?")) return;
-    const { error } = await supabase.from("listings").update({ status: "removed" }).eq("id", id);
+    const { error } = await supabase.from("listings").update({ status: "rejected" }).eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Listing removed");
     listings.refetch();
@@ -95,7 +95,7 @@ function AdminListingsPage() {
           />
         </div>
         <div className="flex gap-2">
-          {(["all", "active", "removed"] as const).map((s) => (
+          {(["all", "active", "rejected"] as const).map((s) => (
             <button
               key={s}
               onClick={() => setStatus(s)}
@@ -162,7 +162,7 @@ function AdminListingsPage() {
                 <Star className="mr-1 inline h-3 w-3" />
                 {l.is_featured ? "Unfeature" : "Feature 7d"}
               </button>
-              {l.status !== "removed" && (
+              {l.status !== "rejected" && (
                 <button
                   onClick={() => removeListing(l.id)}
                   className="flex-1 rounded-xl border border-destructive py-2 text-xs font-semibold text-destructive"
