@@ -141,7 +141,7 @@ function AdminReportsPage() {
                     {t("admin.resolve")}
                   </button>
                   <button
-                    onClick={() => removeListing(r.listing_id, r.id)}
+                    onClick={() => r.listing_id && removeListing(r.listing_id, r.id)}
                     className="flex-1 rounded-xl border border-destructive py-2 text-xs font-semibold text-destructive"
                   >
                     <Trash2 className="mr-1 inline h-3 w-3" />
