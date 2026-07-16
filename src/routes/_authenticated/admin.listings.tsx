@@ -130,7 +130,7 @@ function AdminListingsPage() {
                   {l.title}
                 </Link>
                 <div className="mt-0.5 text-xs text-muted-foreground">
-                  {l.category} · {l.province} · {new Intl.NumberFormat("en-US").format(l.price)}{" "}
+                  {l.category} · {l.province} · {new Intl.NumberFormat("en-US").format(l.price ?? 0)}{" "}
                   {l.currency}
                 </div>
                 <div className="mt-0.5 text-[11px] text-muted-foreground">
