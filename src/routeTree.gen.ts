@@ -20,7 +20,11 @@ import { Route as MessagesIdRouteImport } from './routes/messages.$id'
 import { Route as ListingIdRouteImport } from './routes/listing.$id'
 import { Route as CategoryCategoryRouteImport } from './routes/category.$category'
 import { Route as AuthenticatedSellRouteImport } from './routes/_authenticated/sell'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedPromoteIdRouteImport } from './routes/_authenticated/promote.$id'
+import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
+import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin.reports'
+import { Route as AuthenticatedAdminListingsRouteImport } from './routes/_authenticated/admin.listings'
 import { Route as AuthenticatedAdminAdsRouteImport } from './routes/_authenticated/admin.ads'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -77,11 +81,33 @@ const AuthenticatedSellRoute = AuthenticatedSellRouteImport.update({
   path: '/sell',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPromoteIdRoute = AuthenticatedPromoteIdRouteImport.update({
   id: '/promote/$id',
   path: '/promote/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminReportsRoute =
+  AuthenticatedAdminReportsRouteImport.update({
+    id: '/admin/reports',
+    path: '/admin/reports',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminListingsRoute =
+  AuthenticatedAdminListingsRouteImport.update({
+    id: '/admin/listings',
+    path: '/admin/listings',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminAdsRoute = AuthenticatedAdminAdsRouteImport.update({
   id: '/admin/ads',
   path: '/admin/ads',
@@ -100,7 +126,11 @@ export interface FileRoutesByFullPath {
   '/listing/$id': typeof ListingIdRoute
   '/messages/$id': typeof MessagesIdRoute
   '/admin/ads': typeof AuthenticatedAdminAdsRoute
+  '/admin/listings': typeof AuthenticatedAdminListingsRoute
+  '/admin/reports': typeof AuthenticatedAdminReportsRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/promote/$id': typeof AuthenticatedPromoteIdRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -114,7 +144,11 @@ export interface FileRoutesByTo {
   '/listing/$id': typeof ListingIdRoute
   '/messages/$id': typeof MessagesIdRoute
   '/admin/ads': typeof AuthenticatedAdminAdsRoute
+  '/admin/listings': typeof AuthenticatedAdminListingsRoute
+  '/admin/reports': typeof AuthenticatedAdminReportsRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/promote/$id': typeof AuthenticatedPromoteIdRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -130,7 +164,11 @@ export interface FileRoutesById {
   '/listing/$id': typeof ListingIdRoute
   '/messages/$id': typeof MessagesIdRoute
   '/_authenticated/admin/ads': typeof AuthenticatedAdminAdsRoute
+  '/_authenticated/admin/listings': typeof AuthenticatedAdminListingsRoute
+  '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
+  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/promote/$id': typeof AuthenticatedPromoteIdRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -146,7 +184,11 @@ export interface FileRouteTypes {
     | '/listing/$id'
     | '/messages/$id'
     | '/admin/ads'
+    | '/admin/listings'
+    | '/admin/reports'
+    | '/admin/users'
     | '/promote/$id'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -160,7 +202,11 @@ export interface FileRouteTypes {
     | '/listing/$id'
     | '/messages/$id'
     | '/admin/ads'
+    | '/admin/listings'
+    | '/admin/reports'
+    | '/admin/users'
     | '/promote/$id'
+    | '/admin'
   id:
     | '__root__'
     | '/'
@@ -175,7 +221,11 @@ export interface FileRouteTypes {
     | '/listing/$id'
     | '/messages/$id'
     | '/_authenticated/admin/ads'
+    | '/_authenticated/admin/listings'
+    | '/_authenticated/admin/reports'
+    | '/_authenticated/admin/users'
     | '/_authenticated/promote/$id'
+    | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -269,11 +319,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSellRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/promote/$id': {
       id: '/_authenticated/promote/$id'
       path: '/promote/$id'
       fullPath: '/promote/$id'
       preLoaderRoute: typeof AuthenticatedPromoteIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/users': {
+      id: '/_authenticated/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/reports': {
+      id: '/_authenticated/admin/reports'
+      path: '/admin/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AuthenticatedAdminReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/listings': {
+      id: '/_authenticated/admin/listings'
+      path: '/admin/listings'
+      fullPath: '/admin/listings'
+      preLoaderRoute: typeof AuthenticatedAdminListingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/ads': {
@@ -289,13 +367,21 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSellRoute: typeof AuthenticatedSellRoute
   AuthenticatedAdminAdsRoute: typeof AuthenticatedAdminAdsRoute
+  AuthenticatedAdminListingsRoute: typeof AuthenticatedAdminListingsRoute
+  AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedPromoteIdRoute: typeof AuthenticatedPromoteIdRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSellRoute: AuthenticatedSellRoute,
   AuthenticatedAdminAdsRoute: AuthenticatedAdminAdsRoute,
+  AuthenticatedAdminListingsRoute: AuthenticatedAdminListingsRoute,
+  AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
+  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedPromoteIdRoute: AuthenticatedPromoteIdRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

@@ -55,7 +55,7 @@ function AdminReportsPage() {
 
   async function removeListing(listingId: string, reportId: string) {
     if (!window.confirm("Remove reported listing?")) return;
-    const { error } = await supabase.from("listings").update({ status: "removed" }).eq("id", listingId);
+    const { error } = await supabase.from("listings").update({ status: "rejected" }).eq("id", listingId);
     if (error) return toast.error(error.message);
     await supabase.from("reports").update({ status: "resolved" }).eq("id", reportId);
     toast.success("Listing removed and report resolved");
