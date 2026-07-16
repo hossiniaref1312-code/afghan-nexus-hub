@@ -109,11 +109,11 @@ function Profile() {
 
           {adminCheck.data && (
             <Link
-              to="/admin/ads"
+              to="/admin"
               className="flex w-full items-center justify-center gap-2 rounded-2xl border border-primary bg-primary/5 py-3 text-sm font-semibold text-primary"
             >
               <ShieldCheck className="h-4 w-4" />
-              {t("admin.ads")}
+              {t("admin.dashboard")}
             </Link>
           )}
 
