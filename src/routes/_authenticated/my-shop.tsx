@@ -292,7 +292,7 @@ function ProductForm({ shopId, product, onDone }: { shopId: string; product: any
         currency: form.currency,
         stock: Number(form.stock),
         status: form.status as any,
-        image_urls: form.images.split(",").map((s) => s.trim()).filter(Boolean),
+        image_urls: form.images.split(",").map((s: string) => s.trim()).filter(Boolean),
       };
       const { error } = product
         ? await supabase.from("shop_products").update(payload).eq("id", product.id)
