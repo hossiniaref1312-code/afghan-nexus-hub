@@ -13,13 +13,20 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as FavoritesRouteImport } from './routes/favorites'
+import { Route as CartRouteImport } from './routes/cart'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ShopIndexRouteImport } from './routes/shop.index'
+import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
+import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as MessagesIdRouteImport } from './routes/messages.$id'
 import { Route as ListingIdRouteImport } from './routes/listing.$id'
 import { Route as CategoryCategoryRouteImport } from './routes/category.$category'
 import { Route as AuthenticatedSellRouteImport } from './routes/_authenticated/sell'
+import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
+import { Route as AuthenticatedMyShopRouteImport } from './routes/_authenticated/my-shop'
+import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedPromoteIdRouteImport } from './routes/_authenticated/promote.$id'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
@@ -47,6 +54,11 @@ const FavoritesRoute = FavoritesRouteImport.update({
   path: '/favorites',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CartRoute = CartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -59,6 +71,21 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShopIndexRoute = ShopIndexRouteImport.update({
+  id: '/shop/',
+  path: '/shop/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShopSlugRoute = ShopSlugRouteImport.update({
+  id: '/shop/$slug',
+  path: '/shop/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductIdRoute = ProductIdRouteImport.update({
+  id: '/product/$id',
+  path: '/product/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MessagesIdRoute = MessagesIdRouteImport.update({
@@ -79,6 +106,21 @@ const CategoryCategoryRoute = CategoryCategoryRouteImport.update({
 const AuthenticatedSellRoute = AuthenticatedSellRouteImport.update({
   id: '/sell',
   path: '/sell',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedOrdersRoute = AuthenticatedOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMyShopRoute = AuthenticatedMyShopRouteImport.update({
+  id: '/my-shop',
+  path: '/my-shop',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
@@ -117,14 +159,21 @@ const AuthenticatedAdminAdsRoute = AuthenticatedAdminAdsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cart': typeof CartRoute
   '/favorites': typeof FavoritesRoute
   '/messages': typeof MessagesRouteWithChildren
   '/profile': typeof ProfileRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/checkout': typeof AuthenticatedCheckoutRoute
+  '/my-shop': typeof AuthenticatedMyShopRoute
+  '/orders': typeof AuthenticatedOrdersRoute
   '/sell': typeof AuthenticatedSellRoute
   '/category/$category': typeof CategoryCategoryRoute
   '/listing/$id': typeof ListingIdRoute
   '/messages/$id': typeof MessagesIdRoute
+  '/product/$id': typeof ProductIdRoute
+  '/shop/$slug': typeof ShopSlugRoute
+  '/shop/': typeof ShopIndexRoute
   '/admin/ads': typeof AuthenticatedAdminAdsRoute
   '/admin/listings': typeof AuthenticatedAdminListingsRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
@@ -135,14 +184,21 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cart': typeof CartRoute
   '/favorites': typeof FavoritesRoute
   '/messages': typeof MessagesRouteWithChildren
   '/profile': typeof ProfileRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/checkout': typeof AuthenticatedCheckoutRoute
+  '/my-shop': typeof AuthenticatedMyShopRoute
+  '/orders': typeof AuthenticatedOrdersRoute
   '/sell': typeof AuthenticatedSellRoute
   '/category/$category': typeof CategoryCategoryRoute
   '/listing/$id': typeof ListingIdRoute
   '/messages/$id': typeof MessagesIdRoute
+  '/product/$id': typeof ProductIdRoute
+  '/shop/$slug': typeof ShopSlugRoute
+  '/shop': typeof ShopIndexRoute
   '/admin/ads': typeof AuthenticatedAdminAdsRoute
   '/admin/listings': typeof AuthenticatedAdminListingsRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
@@ -155,14 +211,21 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/cart': typeof CartRoute
   '/favorites': typeof FavoritesRoute
   '/messages': typeof MessagesRouteWithChildren
   '/profile': typeof ProfileRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
+  '/_authenticated/my-shop': typeof AuthenticatedMyShopRoute
+  '/_authenticated/orders': typeof AuthenticatedOrdersRoute
   '/_authenticated/sell': typeof AuthenticatedSellRoute
   '/category/$category': typeof CategoryCategoryRoute
   '/listing/$id': typeof ListingIdRoute
   '/messages/$id': typeof MessagesIdRoute
+  '/product/$id': typeof ProductIdRoute
+  '/shop/$slug': typeof ShopSlugRoute
+  '/shop/': typeof ShopIndexRoute
   '/_authenticated/admin/ads': typeof AuthenticatedAdminAdsRoute
   '/_authenticated/admin/listings': typeof AuthenticatedAdminListingsRoute
   '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
@@ -175,14 +238,21 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/cart'
     | '/favorites'
     | '/messages'
     | '/profile'
     | '/sitemap.xml'
+    | '/checkout'
+    | '/my-shop'
+    | '/orders'
     | '/sell'
     | '/category/$category'
     | '/listing/$id'
     | '/messages/$id'
+    | '/product/$id'
+    | '/shop/$slug'
+    | '/shop/'
     | '/admin/ads'
     | '/admin/listings'
     | '/admin/reports'
@@ -193,14 +263,21 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/cart'
     | '/favorites'
     | '/messages'
     | '/profile'
     | '/sitemap.xml'
+    | '/checkout'
+    | '/my-shop'
+    | '/orders'
     | '/sell'
     | '/category/$category'
     | '/listing/$id'
     | '/messages/$id'
+    | '/product/$id'
+    | '/shop/$slug'
+    | '/shop'
     | '/admin/ads'
     | '/admin/listings'
     | '/admin/reports'
@@ -212,14 +289,21 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/cart'
     | '/favorites'
     | '/messages'
     | '/profile'
     | '/sitemap.xml'
+    | '/_authenticated/checkout'
+    | '/_authenticated/my-shop'
+    | '/_authenticated/orders'
     | '/_authenticated/sell'
     | '/category/$category'
     | '/listing/$id'
     | '/messages/$id'
+    | '/product/$id'
+    | '/shop/$slug'
+    | '/shop/'
     | '/_authenticated/admin/ads'
     | '/_authenticated/admin/listings'
     | '/_authenticated/admin/reports'
@@ -232,12 +316,16 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CartRoute: typeof CartRoute
   FavoritesRoute: typeof FavoritesRoute
   MessagesRoute: typeof MessagesRouteWithChildren
   ProfileRoute: typeof ProfileRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   CategoryCategoryRoute: typeof CategoryCategoryRoute
   ListingIdRoute: typeof ListingIdRoute
+  ProductIdRoute: typeof ProductIdRoute
+  ShopSlugRoute: typeof ShopSlugRoute
+  ShopIndexRoute: typeof ShopIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -270,6 +358,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FavoritesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cart': {
+      id: '/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof CartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -289,6 +384,27 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shop/': {
+      id: '/shop/'
+      path: '/shop'
+      fullPath: '/shop/'
+      preLoaderRoute: typeof ShopIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shop/$slug': {
+      id: '/shop/$slug'
+      path: '/shop/$slug'
+      fullPath: '/shop/$slug'
+      preLoaderRoute: typeof ShopSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/product/$id': {
+      id: '/product/$id'
+      path: '/product/$id'
+      fullPath: '/product/$id'
+      preLoaderRoute: typeof ProductIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/messages/$id': {
@@ -317,6 +433,27 @@ declare module '@tanstack/react-router' {
       path: '/sell'
       fullPath: '/sell'
       preLoaderRoute: typeof AuthenticatedSellRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/orders': {
+      id: '/_authenticated/orders'
+      path: '/orders'
+      fullPath: '/orders'
+      preLoaderRoute: typeof AuthenticatedOrdersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-shop': {
+      id: '/_authenticated/my-shop'
+      path: '/my-shop'
+      fullPath: '/my-shop'
+      preLoaderRoute: typeof AuthenticatedMyShopRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/checkout': {
+      id: '/_authenticated/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof AuthenticatedCheckoutRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/': {
@@ -365,6 +502,9 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
+  AuthenticatedMyShopRoute: typeof AuthenticatedMyShopRoute
+  AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRoute
   AuthenticatedSellRoute: typeof AuthenticatedSellRoute
   AuthenticatedAdminAdsRoute: typeof AuthenticatedAdminAdsRoute
   AuthenticatedAdminListingsRoute: typeof AuthenticatedAdminListingsRoute
@@ -375,6 +515,9 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
+  AuthenticatedMyShopRoute: AuthenticatedMyShopRoute,
+  AuthenticatedOrdersRoute: AuthenticatedOrdersRoute,
   AuthenticatedSellRoute: AuthenticatedSellRoute,
   AuthenticatedAdminAdsRoute: AuthenticatedAdminAdsRoute,
   AuthenticatedAdminListingsRoute: AuthenticatedAdminListingsRoute,
@@ -403,23 +546,17 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  CartRoute: CartRoute,
   FavoritesRoute: FavoritesRoute,
   MessagesRoute: MessagesRouteWithChildren,
   ProfileRoute: ProfileRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   CategoryCategoryRoute: CategoryCategoryRoute,
   ListingIdRoute: ListingIdRoute,
+  ProductIdRoute: ProductIdRoute,
+  ShopSlugRoute: ShopSlugRoute,
+  ShopIndexRoute: ShopIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

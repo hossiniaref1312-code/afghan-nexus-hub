@@ -1,44 +1,76 @@
-# AfghanMarket — Build Plan
+# پلن این نوبت
 
-This is a very large scope (auth, 5 modules, chat, ads, payments, admin, 25+ languages, RTL). I can't ship all of it in a single turn and keep quality high. Here's how I propose to break it down so you get a working, production-quality app in phases — each phase is itself shippable.
+## بخش ۱ — پاکسازی احراز هویت (سریع)
 
-## Phase 1 — Foundation (this turn, if you approve)
-- Enable Lovable Cloud (database + auth + storage).
-- Design system: custom brand (not generic AI look), light + dark mode, mobile-first, Dari/Pashto/English with RTL.
-- i18n scaffold supporting all 25 languages you listed (Dari, Pashto, English wired with real strings; others stubbed and easy to fill).
-- Phone + OTP auth (Dari/Pashto/English UI), profile with hidden province/city.
-- Home dashboard: 5 large category cards, search bar, language switcher, theme toggle.
-- DB schema for: profiles, listings (unified, typed by category), favorites, reports, user_roles.
-- Listing browse + detail + create flow for **Marketplace** category end-to-end as the reference implementation.
+فایل‌های موجود اسکن می‌شن. هرچی mock/placeholder/console.log تستی باشه حذف می‌شه.
 
-## Phase 2 — Category modules
-Real Estate, Vehicles, Jobs, Services — each with category-specific fields, filters, image galleries, favorites, contact-by-phone.
+- `src/routes/auth.tsx` — بررسی؛ در حال حاضر با Supabase واقعی کار می‌کنه (`signUp`, `signInWithPassword`, `signInWithOtp`, `verifyOtp`). فقط اگه TODO یا placeholder موند حذف می‌شه.
+- `src/hooks/use-auth.ts` — بررسی سلامت listener.
+- `src/lib/payment-methods.ts` — شماره‌های `0799 000 000` placeholder هستن → یا حذف یا با کامنت واضح "این‌ها را با شماره واقعی جایگزین کنید" علامت‌گذاری می‌شن.
+- فعال کردن **Leaked Password Protection** روی Supabase.
+- اطمینان از اینکه auto-confirm email خاموشه (امنیت واقعی).
 
-## Phase 3 — Chat
-Realtime buyer/seller messaging with image sharing (Cloud Realtime + Storage).
+## بخش ۲ — فروشگاه شخصی من (My Shop)
 
-## Phase 4 — Ads & monetization
-Boosted/featured listings, in-feed promoted slots, admin controls. AdMob and Afghan telco (Roshan/Etisalat/AWCC) billing are external integrations — I'll wire the UI + DB and we'll connect real providers when you have API access/credentials (they aren't self-serve).
+### مدل داده (migration)
 
-## Phase 5 — Admin panel
-Users, listings, reports, analytics, ad/monetization controls. Role-gated via `has_role()`.
+- `shops`: مالک، نام، توضیحات، لوگو، آدرس، فعال/غیرفعال (هر کاربر یک shop)
+- `shop_categories`: دسته‌بندی محصولات داخل فروشگاه (سلسله‌مراتبی)
+- `shop_products`: عنوان، توضیح، قیمت، ارز، عکس‌ها، دسته، **موجودی (stock)**، وضعیت (active/out_of_stock/hidden)
+- `shop_orders`: مشتری، فروشگاه، مجموع، وضعیت (pending/paid/shipped/delivered/cancelled)، آدرس ارسال، روش پرداخت
+- `shop_order_items`: سفارش، محصول، تعداد، قیمت لحظه‌ای
+- `shop_carts` + `shop_cart_items`: سبد خرید (per user)
 
-## Phase 6 — Polish & hardening
-Anti-spam, rate limits, full translations for remaining languages, Capacitor wrap for Android/iOS.
+همه با RLS: مالک فروشگاه محصولات/سفارشاتش را می‌بیند، مشتری فقط سفارشات خودش را، محصولات فعال برای همه قابل دیدن.
 
-## Technical notes
-- Stack: TanStack Start + React + Tailwind v4 + Lovable Cloud (Postgres + Auth + Storage + Realtime).
-- Auth: Supabase phone OTP. Afghan telco SMS gateways aren't built-in; default OTP works on +93 numbers via Supabase's SMS provider — for production volume you'll want to plug in Twilio or a local SMS gateway later.
-- Ads/payments: AdMob is mobile-SDK only (needs the Capacitor wrap in Phase 6). Afghan telco mobile-balance billing requires per-operator merchant agreements — not something I can provision; I'll build the abstraction so we drop in providers when ready.
-- Maps: free OpenStreetMap/Leaflet by default; can swap to Google/Mapbox if you provide a key.
-- Privacy: province/city stored on profile but excluded from all public RLS policies; only admin role can read.
+### صفحات جدید
 
-## What I need from you
-1. **Approve the phased approach** (vs. trying to cram everything at once and shipping a shallow demo).
-2. **Brand direction** for Phase 1 — pick one or say "you choose":
-   - (a) Warm & local: deep emerald + saffron accents, geometric Islamic-pattern motifs.
-   - (b) Modern minimal: near-black + single vivid accent (electric cyan or hot coral), lots of whitespace.
-   - (c) Bold trust: deep navy + gold, dense card layouts like top classifieds apps.
-3. **OK to defer** real AdMob + Afghan telco payment hookups to Phase 4 once you have provider credentials? (I'll build the UI and stubs now.)
+```
+/shop                              فروشگاه‌های همه (لیست عمومی)
+/shop/$slug                        صفحه یک فروشگاه + محصولاتش
+/shop/$slug/product/$productId     جزئیات محصول + دکمه افزودن به سبد
+/cart                              سبد خرید
+/checkout                          فرم آدرس + انتخاب روش پرداخت
+/orders                            سفارشات من (خریدار)
+/_authenticated/my-shop            داشبورد فروشگاه من (فروشنده)
+/_authenticated/my-shop/products   مدیریت محصولات (CRUD + موجودی)
+/_authenticated/my-shop/orders     مدیریت سفارشات (تغییر وضعیت)
+/_authenticated/my-shop/setup      ساخت/ویرایش اطلاعات فروشگاه
+```
 
-Reply with approval + brand choice and I'll start Phase 1 immediately.
+### روش پرداخت این نوبت
+
+فقط **Cash on Delivery** و **Bank Transfer دستی** (همان الگوی PAYMENT_METHODS موجود). اتصال PayPal واقعی نوبت بعد چون:
+- کلید PayPal Business API لازمه
+- Webhook مخصوص لازمه
+- باید صرفاً بعد از موافقت شما درخواست کنم
+
+### i18n
+
+کلیدهای فروشگاه به دیکشنری‌های EN/FA/PS اضافه می‌شن.
+
+### دکمه ورودی
+
+روی `SiteHeader` و صفحه اصلی و `profile` لینک "فروشگاه من" اضافه می‌شه.
+
+## بخش ۳ — گزارش کاستی‌ها (بدون کد)
+
+بعد از تحویل این نوبت، لیستی از چیزهایی که یک اپ حرفه‌ای در سطح OLX/Divar داره ولی ما هنوز نداریم رو در چت می‌نویسم:
+- اعلانات push
+- تبلیغات AdMob (Capacitor)
+- PayPal + Stripe
+- سیستم نظرات و امتیاز فروشنده
+- verification فروشگاه (تیک آبی)
+- تحویل/لجستیک
+- آنالیتیکس فروشنده
+- بازیابی رمز عبور
+
+هرکدوم را که خواستی در نوبت بعد می‌سازم.
+
+## چیزی که این نوبت نمی‌سازم (نیاز به تصمیم/کلید)
+
+- ❌ AdMob (نیاز به Capacitor build + Ad Unit IDs)
+- ❌ PayPal (نیاز به کلید PayPal Business)
+- ❌ SMS provider واقعی برای OTP افغانستان (Twilio نیاز داره)
+
+بعد از تأیید این پلن، شروع می‌کنم.

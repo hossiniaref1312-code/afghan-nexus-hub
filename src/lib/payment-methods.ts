@@ -1,5 +1,7 @@
-// Afghan telco / bank payment options for ad boosts.
-// Real settlement is manual: user transfers, submits reference, admin approves.
+// Afghan payment methods for boosts and shop orders.
+// Real settlement is manual: user transfers, submits reference, admin/seller approves.
+// Account numbers are configured per project — set them in Admin → Settings (future)
+// or replace the empty strings below with your real merchant numbers.
 
 export type PaymentMethodKey =
   | "mpaisa"
@@ -10,41 +12,40 @@ export type PaymentMethodKey =
 
 export interface PaymentMethod {
   key: PaymentMethodKey;
-  name: string;         // display name
-  account: string;      // number to send funds to
-  instructions: string; // short user-facing help
+  name: string;
+  account: string;
+  instructions: string;
 }
 
-// TODO: replace account numbers with the operator's real merchant numbers.
 export const PAYMENT_METHODS: PaymentMethod[] = [
+  {
+    key: "cash",
+    name: "Cash on delivery / office",
+    account: "",
+    instructions: "Pay in cash on delivery or at our office; keep the receipt.",
+  },
+  {
+    key: "bank_transfer",
+    name: "Bank transfer (AIB / Azizi)",
+    account: "",
+    instructions: "Transfer from any Afghan bank and paste the reference.",
+  },
   {
     key: "mpaisa",
     name: "M-Paisa (Roshan)",
-    account: "0799 000 000",
+    account: "",
     instructions: "Send from your M-Paisa wallet, then paste the transaction ID.",
   },
   {
     key: "myMoney",
     name: "My Money (Etisalat)",
-    account: "0786 000 000",
+    account: "",
     instructions: "Send via My Money and paste the confirmation reference.",
   },
   {
     key: "hesab_pay",
     name: "HesabPay",
-    account: "afghanmarket",
+    account: "",
     instructions: "Pay to the HesabPay merchant and paste the reference code.",
-  },
-  {
-    key: "bank_transfer",
-    name: "Bank transfer (AIB / Azizi)",
-    account: "IBAN AF00 0000 0000 0000",
-    instructions: "Transfer from any Afghan bank and paste the reference.",
-  },
-  {
-    key: "cash",
-    name: "Cash on office visit",
-    account: "Kabul office",
-    instructions: "Pay in cash at our office; keep the receipt number.",
   },
 ];
