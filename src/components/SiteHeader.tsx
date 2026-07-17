@@ -12,8 +12,9 @@ interface NavItem {
 
 const NAV: NavItem[] = [
   { to: "/", key: "nav.home", match: (p) => p === "/" },
+  { to: "/shop", key: "nav.shop", match: (p) => p.startsWith("/shop") || p.startsWith("/product") },
   { to: "/category/marketplace", key: "nav.browse", match: (p) => p.startsWith("/category") },
-  { to: "/favorites", key: "nav.favorites", match: (p) => p.startsWith("/favorites") },
+  { to: "/cart", key: "nav.cart", match: (p) => p.startsWith("/cart") },
   { to: "/messages", key: "nav.messages", match: (p) => p.startsWith("/messages") },
 ];
 
