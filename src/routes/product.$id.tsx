@@ -64,6 +64,23 @@ function ProductPage() {
     },
   });
 
+  const relatedQ = useQuery({
+    enabled: !!product.data?.shop_id,
+    queryKey: ["product-related", product.data?.shop_id, product.data?.category_id, product.data?.id],
+    queryFn: async () => {
+      let q = supabase
+        .from("shop_products")
+        .select("id,title,price,currency,image_urls")
+        .eq("shop_id", product.data!.shop_id)
+        .eq("status", "active")
+        .neq("id", product.data!.id)
+        .limit(8);
+      if (product.data!.category_id) q = q.eq("category_id", product.data!.category_id);
+      const { data } = await q.order("created_at", { ascending: false });
+      return data ?? [];
+    },
+  });
+
   async function addToCart() {
     if (!user) {
       navigate({ to: "/auth", search: { redirect: `/product/${id}` } });
