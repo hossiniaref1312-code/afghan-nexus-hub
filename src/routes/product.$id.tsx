@@ -211,6 +211,38 @@ function ProductPage() {
             )}
           </div>
         </div>
+
+        {relatedQ.data && relatedQ.data.length > 0 && (
+          <div className="mt-10">
+            <h2 className="text-lg font-semibold">{t("shop.related")}</h2>
+            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              {relatedQ.data.map((r) => (
+                <Link
+                  key={r.id}
+                  to="/product/$id"
+                  params={{ id: r.id }}
+                  className="group overflow-hidden rounded-2xl border border-border bg-card shadow-card transition-all hover:-translate-y-0.5 hover:shadow-elevated"
+                >
+                  <div className="aspect-square w-full overflow-hidden bg-muted">
+                    {r.image_urls?.[0] ? (
+                      <img src={r.image_urls[0]} alt={r.title} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
+                    ) : (
+                      <div className="grid h-full w-full place-items-center text-muted-foreground">
+                        <Store className="h-6 w-6" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <div className="line-clamp-1 text-sm font-medium">{r.title}</div>
+                    <div className="mt-1 text-sm font-bold text-primary">
+                      {formatCurrency(r.price, r.currency)}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </AppShell>
   );
