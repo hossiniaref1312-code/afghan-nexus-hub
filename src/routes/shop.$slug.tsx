@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Store, ShoppingCart } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Store, ShoppingCart, Search } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useT } from "@/lib/i18n/I18nProvider";
@@ -16,9 +17,14 @@ export const Route = createFileRoute("/shop/$slug")({
   component: ShopPage,
 });
 
+type Sort = "newest" | "price_asc" | "price_desc";
+
 function ShopPage() {
   const t = useT();
   const { slug } = Route.useParams();
+  const [q, setQ] = useState("");
+  const [catId, setCatId] = useState<string | null>(null);
+  const [sort, setSort] = useState<Sort>("newest");
 
   const shopQ = useQuery({
     queryKey: ["shop", slug],
@@ -34,13 +40,28 @@ function ShopPage() {
     },
   });
 
+  const categoriesQ = useQuery({
+    enabled: !!shopQ.data?.id,
+    queryKey: ["shop-categories", shopQ.data?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("shop_categories")
+        .select("id,name,sort_order")
+        .eq("shop_id", shopQ.data!.id)
+        .order("sort_order", { ascending: true })
+        .order("name", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
   const productsQ = useQuery({
     enabled: !!shopQ.data?.id,
     queryKey: ["shop-products", shopQ.data?.id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("shop_products")
-        .select("id,title,price,currency,stock,image_urls,status")
+        .select("id,title,description,price,currency,stock,image_urls,status,category_id,created_at")
         .eq("shop_id", shopQ.data!.id)
         .eq("status", "active")
         .order("created_at", { ascending: false });
@@ -48,6 +69,18 @@ function ShopPage() {
       return data ?? [];
     },
   });
+
+  const filtered = useMemo(() => {
+    let list = productsQ.data ?? [];
+    if (catId) list = list.filter((p) => p.category_id === catId);
+    const s = q.trim().toLowerCase();
+    if (s) list = list.filter((p) => p.title?.toLowerCase().includes(s) || p.description?.toLowerCase().includes(s));
+    const sorted = [...list];
+    if (sort === "price_asc") sorted.sort((a, b) => Number(a.price) - Number(b.price));
+    else if (sort === "price_desc") sorted.sort((a, b) => Number(b.price) - Number(a.price));
+    else sorted.sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+    return sorted;
+  }, [productsQ.data, q, catId, sort]);
 
   if (shopQ.isLoading) {
     return (
@@ -64,6 +97,7 @@ function ShopPage() {
     );
   }
   const shop = shopQ.data;
+  const categories = categoriesQ.data ?? [];
 
   return (
     <AppShell variant="site">
@@ -90,7 +124,7 @@ function ShopPage() {
             </div>
             <Link
               to="/cart"
-              className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium"
+              className="ms-auto inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium"
             >
               <ShoppingCart className="h-4 w-4" /> {t("nav.cart")}
             </Link>
@@ -100,14 +134,71 @@ function ShopPage() {
           )}
         </div>
 
-        <h2 className="mt-8 text-lg font-semibold">{t("shop.products")}</h2>
+        {/* search + sort */}
+        <div className="mt-6 flex flex-col gap-3 md:flex-row md:items-center">
+          <div className="flex flex-1 items-center gap-2 rounded-2xl border border-border bg-card px-3 py-2.5 shadow-card">
+            <Search className="h-4 w-4 text-muted-foreground" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder={t("shop.searchProducts")}
+              className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            />
+          </div>
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value as Sort)}
+            className="rounded-2xl border border-border bg-card px-3 py-2.5 text-sm shadow-card"
+          >
+            <option value="newest">{t("shop.sortNewest")}</option>
+            <option value="price_asc">{t("shop.sortPriceAsc")}</option>
+            <option value="price_desc">{t("shop.sortPriceDesc")}</option>
+          </select>
+        </div>
+
+        {/* categories */}
+        {categories.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button
+              onClick={() => setCatId(null)}
+              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                !catId ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground"
+              }`}
+            >
+              {t("shop.allCategories")}
+            </button>
+            {categories.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => setCatId(c.id)}
+                className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                  catId === c.id ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground"
+                }`}
+              >
+                {c.name}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-6 flex items-center justify-between">
+          <h2 className="text-lg font-semibold">{t("shop.products")}</h2>
+          {!productsQ.isLoading && (
+            <span className="text-xs text-muted-foreground">
+              {t("shop.resultsCount").replace("{n}", String(filtered.length))}
+            </span>
+          )}
+        </div>
+
         {productsQ.isLoading ? (
           <p className="mt-4 text-sm text-muted-foreground">{t("common.loading")}</p>
-        ) : !productsQ.data || productsQ.data.length === 0 ? (
-          <p className="mt-4 text-sm text-muted-foreground">{t("shop.noProducts")}</p>
+        ) : filtered.length === 0 ? (
+          <p className="mt-4 text-sm text-muted-foreground">
+            {(productsQ.data ?? []).length === 0 ? t("shop.noProducts") : t("shop.noResults")}
+          </p>
         ) : (
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {productsQ.data.map((p) => (
+            {filtered.map((p) => (
               <Link
                 key={p.id}
                 to="/product/$id"
