@@ -43,7 +43,7 @@ function ProductPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("shop_products")
-        .select("id,title,description,price,currency,stock,image_urls,shop_id,status")
+        .select("id,title,description,price,currency,stock,image_urls,shop_id,status,category_id")
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
