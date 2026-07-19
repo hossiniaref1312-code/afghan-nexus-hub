@@ -312,6 +312,7 @@ function ProductForm({ shopId, product, categories, onDone }: { shopId: string; 
         currency: form.currency,
         stock: Number(form.stock),
         status: form.status as any,
+        category_id: form.category_id || null,
         image_urls: form.images.split(",").map((s: string) => s.trim()).filter(Boolean),
       };
       const { error } = product
