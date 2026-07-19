@@ -185,6 +185,20 @@ function ProductsTab({ shopId }: { shopId: string }) {
   const [editing, setEditing] = useState<any | null>(null);
   const [creating, setCreating] = useState(false);
 
+  const categories = useQuery({
+    queryKey: ["my-shop-categories", shopId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("shop_categories")
+        .select("id,name,sort_order")
+        .eq("shop_id", shopId)
+        .order("sort_order", { ascending: true })
+        .order("name", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
   const products = useQuery({
     queryKey: ["my-shop-products", shopId],
     queryFn: async () => {
@@ -207,7 +221,9 @@ function ProductsTab({ shopId }: { shopId: string }) {
 
   return (
     <div>
-      <div className="mb-4 flex justify-end">
+      <CategoriesManager shopId={shopId} categories={categories.data ?? []} onChange={() => categories.refetch()} />
+
+      <div className="mb-4 mt-6 flex justify-end">
         <button
           onClick={() => { setEditing(null); setCreating(true); }}
           className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
@@ -220,6 +236,7 @@ function ProductsTab({ shopId }: { shopId: string }) {
         <ProductForm
           shopId={shopId}
           product={editing}
+          categories={categories.data ?? []}
           onDone={() => {
             setCreating(false);
             setEditing(null);
@@ -267,7 +284,9 @@ function ProductsTab({ shopId }: { shopId: string }) {
   );
 }
 
-function ProductForm({ shopId, product, onDone }: { shopId: string; product: any; onDone: () => void }) {
+type Category = { id: string; name: string; sort_order: number };
+
+function ProductForm({ shopId, product, categories, onDone }: { shopId: string; product: any; categories: Category[]; onDone: () => void }) {
   const t = useT();
   const [form, setForm] = useState({
     title: product?.title ?? "",
@@ -277,6 +296,7 @@ function ProductForm({ shopId, product, onDone }: { shopId: string; product: any
     stock: product?.stock ?? 0,
     images: (product?.image_urls ?? []).join(", "),
     status: product?.status ?? "active",
+    category_id: product?.category_id ?? "",
   });
   const [saving, setSaving] = useState(false);
 
@@ -292,6 +312,7 @@ function ProductForm({ shopId, product, onDone }: { shopId: string; product: any
         currency: form.currency,
         stock: Number(form.stock),
         status: form.status as any,
+        category_id: form.category_id || null,
         image_urls: form.images.split(",").map((s: string) => s.trim()).filter(Boolean),
       };
       const { error } = product
@@ -329,6 +350,14 @@ function ProductForm({ shopId, product, onDone }: { shopId: string; product: any
           <option value="active">active</option>
           <option value="out_of_stock">out_of_stock</option>
           <option value="hidden">hidden</option>
+        </select>
+      </Field>
+      <Field label={t("myShop.productCategory")}>
+        <select value={form.category_id} onChange={(e) => setForm({ ...form, category_id: e.target.value })} className="input">
+          <option value="">{t("myShop.noCategory")}</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
         </select>
       </Field>
       <div className="flex items-end gap-2">
@@ -413,5 +442,73 @@ function OrdersTab({ shopId }: { shopId: string }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+/* ============ CATEGORIES ============ */
+
+function CategoriesManager({ shopId, categories, onChange }: { shopId: string; categories: Category[]; onChange: () => void }) {
+  const t = useT();
+  const [name, setName] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function add(e: React.FormEvent) {
+    e.preventDefault();
+    if (!name.trim()) return;
+    setBusy(true);
+    const { error } = await supabase
+      .from("shop_categories")
+      .insert({ shop_id: shopId, name: name.trim(), sort_order: categories.length });
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    setName("");
+    toast.success(t("myShop.categorySaved"));
+    onChange();
+  }
+
+  async function remove(id: string) {
+    const { error } = await supabase.from("shop_categories").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success(t("myShop.categoryDeleted"));
+    onChange();
+  }
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
+      <div className="mb-3 flex items-center justify-between">
+        <div className="text-sm font-semibold">{t("myShop.categories")}</div>
+      </div>
+      <form onSubmit={add} className="flex gap-2">
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder={t("myShop.categoryName")}
+          className="flex-1 rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+        />
+        <button
+          type="submit"
+          disabled={busy || !name.trim()}
+          className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+        >
+          <Plus className="h-4 w-4" /> {t("myShop.addCategory")}
+        </button>
+      </form>
+      {categories.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {categories.map((c) => (
+            <span key={c.id} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1 text-xs">
+              {c.name}
+              <button
+                onClick={() => remove(c.id)}
+                className="text-muted-foreground hover:text-destructive"
+                aria-label="delete"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
