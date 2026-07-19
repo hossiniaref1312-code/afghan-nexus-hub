@@ -444,3 +444,71 @@ function OrdersTab({ shopId }: { shopId: string }) {
     </ul>
   );
 }
+
+/* ============ CATEGORIES ============ */
+
+function CategoriesManager({ shopId, categories, onChange }: { shopId: string; categories: Category[]; onChange: () => void }) {
+  const t = useT();
+  const [name, setName] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function add(e: React.FormEvent) {
+    e.preventDefault();
+    if (!name.trim()) return;
+    setBusy(true);
+    const { error } = await supabase
+      .from("shop_categories")
+      .insert({ shop_id: shopId, name: name.trim(), sort_order: categories.length });
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    setName("");
+    toast.success(t("myShop.categorySaved"));
+    onChange();
+  }
+
+  async function remove(id: string) {
+    const { error } = await supabase.from("shop_categories").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success(t("myShop.categoryDeleted"));
+    onChange();
+  }
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
+      <div className="mb-3 flex items-center justify-between">
+        <div className="text-sm font-semibold">{t("myShop.categories")}</div>
+      </div>
+      <form onSubmit={add} className="flex gap-2">
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder={t("myShop.categoryName")}
+          className="flex-1 rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+        />
+        <button
+          type="submit"
+          disabled={busy || !name.trim()}
+          className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+        >
+          <Plus className="h-4 w-4" /> {t("myShop.addCategory")}
+        </button>
+      </form>
+      {categories.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {categories.map((c) => (
+            <span key={c.id} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1 text-xs">
+              {c.name}
+              <button
+                onClick={() => remove(c.id)}
+                className="text-muted-foreground hover:text-destructive"
+                aria-label="delete"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
