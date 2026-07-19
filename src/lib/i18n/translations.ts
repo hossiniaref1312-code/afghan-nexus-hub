@@ -660,6 +660,13 @@ const fa: Dict = {
   "myShop.productImages": "آدرس عکس‌ها (با کاما جدا)",
   "myShop.productSaved": "محصول ذخیره شد.",
   "myShop.productDeleted": "محصول حذف شد.",
+  "myShop.categories": "دسته‌بندی‌ها",
+  "myShop.addCategory": "افزودن دسته",
+  "myShop.categoryName": "نام دسته",
+  "myShop.productCategory": "دسته",
+  "myShop.noCategory": "بدون دسته",
+  "myShop.categorySaved": "دسته ذخیره شد.",
+  "myShop.categoryDeleted": "دسته حذف شد.",
 
   "cart.title": "سبد خرید شما",
   "cart.empty": "سبد شما خالی است.",
