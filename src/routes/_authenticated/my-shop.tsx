@@ -284,7 +284,9 @@ function ProductsTab({ shopId }: { shopId: string }) {
   );
 }
 
-function ProductForm({ shopId, product, onDone }: { shopId: string; product: any; onDone: () => void }) {
+type Category = { id: string; name: string; sort_order: number };
+
+function ProductForm({ shopId, product, categories, onDone }: { shopId: string; product: any; categories: Category[]; onDone: () => void }) {
   const t = useT();
   const [form, setForm] = useState({
     title: product?.title ?? "",
@@ -294,6 +296,7 @@ function ProductForm({ shopId, product, onDone }: { shopId: string; product: any
     stock: product?.stock ?? 0,
     images: (product?.image_urls ?? []).join(", "),
     status: product?.status ?? "active",
+    category_id: product?.category_id ?? "",
   });
   const [saving, setSaving] = useState(false);
 
