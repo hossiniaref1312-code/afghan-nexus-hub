@@ -362,6 +362,13 @@ const en: Dict = {
   "myShop.productImages": "Image URLs (comma separated)",
   "myShop.productSaved": "Product saved.",
   "myShop.productDeleted": "Product deleted.",
+  "myShop.categories": "Categories",
+  "myShop.addCategory": "Add category",
+  "myShop.categoryName": "Category name",
+  "myShop.productCategory": "Category",
+  "myShop.noCategory": "Uncategorized",
+  "myShop.categorySaved": "Category saved.",
+  "myShop.categoryDeleted": "Category deleted.",
 
   "cart.title": "Your cart",
   "cart.empty": "Your cart is empty.",
