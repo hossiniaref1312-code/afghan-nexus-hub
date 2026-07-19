@@ -185,6 +185,20 @@ function ProductsTab({ shopId }: { shopId: string }) {
   const [editing, setEditing] = useState<any | null>(null);
   const [creating, setCreating] = useState(false);
 
+  const categories = useQuery({
+    queryKey: ["my-shop-categories", shopId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("shop_categories")
+        .select("id,name,sort_order")
+        .eq("shop_id", shopId)
+        .order("sort_order", { ascending: true })
+        .order("name", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
   const products = useQuery({
     queryKey: ["my-shop-products", shopId],
     queryFn: async () => {
