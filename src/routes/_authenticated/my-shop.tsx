@@ -221,7 +221,9 @@ function ProductsTab({ shopId }: { shopId: string }) {
 
   return (
     <div>
-      <div className="mb-4 flex justify-end">
+      <CategoriesManager shopId={shopId} categories={categories.data ?? []} onChange={() => categories.refetch()} />
+
+      <div className="mb-4 mt-6 flex justify-end">
         <button
           onClick={() => { setEditing(null); setCreating(true); }}
           className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
@@ -234,6 +236,7 @@ function ProductsTab({ shopId }: { shopId: string }) {
         <ProductForm
           shopId={shopId}
           product={editing}
+          categories={categories.data ?? []}
           onDone={() => {
             setCreating(false);
             setEditing(null);
