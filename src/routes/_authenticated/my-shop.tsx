@@ -352,6 +352,14 @@ function ProductForm({ shopId, product, categories, onDone }: { shopId: string; 
           <option value="hidden">hidden</option>
         </select>
       </Field>
+      <Field label={t("myShop.productCategory")}>
+        <select value={form.category_id} onChange={(e) => setForm({ ...form, category_id: e.target.value })} className="input">
+          <option value="">{t("myShop.noCategory")}</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
+      </Field>
       <div className="flex items-end gap-2">
         <button type="submit" disabled={saving} className="bg-gradient-brand flex-1 rounded-xl py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50">
           {saving ? t("common.loading") : t("common.save")}
