@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { usePerfQuery } from "@/lib/use-perf-query";
 import { useEffect, useMemo, useState } from "react";
 import { Store, Search, Package } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
@@ -31,7 +31,7 @@ function ShopsIndex() {
     return () => clearTimeout(id);
   }, [term]);
 
-  const shopsQ = useQuery({
+  const shopsQ = usePerfQuery("shop/index:shops-list", {
     queryKey: ["shops-list"],
     staleTime: 5 * 60_000,
     gcTime: 30 * 60_000,
@@ -47,7 +47,7 @@ function ShopsIndex() {
     },
   });
 
-  const productsQ = useQuery({
+  const productsQ = usePerfQuery("shop/index:global-products", {
     enabled: tab === "products" && debounced.length > 0,
     queryKey: ["global-products", debounced],
     staleTime: 2 * 60_000,

@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { usePerfQuery } from "@/lib/use-perf-query";
 import { useMemo, useState } from "react";
 import { Store, ShoppingCart, Search } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
@@ -26,7 +26,7 @@ function ShopPage() {
   const [catId, setCatId] = useState<string | null>(null);
   const [sort, setSort] = useState<Sort>("newest");
 
-  const shopQ = useQuery({
+  const shopQ = usePerfQuery("shop/:slug:shop", {
     queryKey: ["shop", slug],
     staleTime: 5 * 60_000,
     gcTime: 30 * 60_000,
@@ -43,7 +43,7 @@ function ShopPage() {
     },
   });
 
-  const categoriesQ = useQuery({
+  const categoriesQ = usePerfQuery("shop/:slug:categories", {
     enabled: !!shopQ.data?.id,
     queryKey: ["shop-categories", shopQ.data?.id],
     staleTime: 10 * 60_000,
@@ -61,7 +61,7 @@ function ShopPage() {
     },
   });
 
-  const productsQ = useQuery({
+  const productsQ = usePerfQuery("shop/:slug:products", {
     enabled: !!shopQ.data?.id,
     queryKey: ["shop-products", shopQ.data?.id],
     staleTime: 2 * 60_000,
