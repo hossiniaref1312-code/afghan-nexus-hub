@@ -28,6 +28,9 @@ function ShopPage() {
 
   const shopQ = useQuery({
     queryKey: ["shop", slug],
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
+    refetchOnWindowFocus: false,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("shops")
@@ -43,6 +46,9 @@ function ShopPage() {
   const categoriesQ = useQuery({
     enabled: !!shopQ.data?.id,
     queryKey: ["shop-categories", shopQ.data?.id],
+    staleTime: 10 * 60_000,
+    gcTime: 30 * 60_000,
+    refetchOnWindowFocus: false,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("shop_categories")
@@ -58,6 +64,9 @@ function ShopPage() {
   const productsQ = useQuery({
     enabled: !!shopQ.data?.id,
     queryKey: ["shop-products", shopQ.data?.id],
+    staleTime: 2 * 60_000,
+    gcTime: 15 * 60_000,
+    refetchOnWindowFocus: false,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("shop_products")

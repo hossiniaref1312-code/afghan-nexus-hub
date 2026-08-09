@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Store, Search, Package } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,9 +24,18 @@ function ShopsIndex() {
   const [tab, setTab] = useState<Tab>("shops");
   const [q, setQ] = useState("");
   const term = q.trim();
+  const [debounced, setDebounced] = useState(term);
+
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(term), 300);
+    return () => clearTimeout(id);
+  }, [term]);
 
   const shopsQ = useQuery({
     queryKey: ["shops-list"],
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
+    refetchOnWindowFocus: false,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("shops")
@@ -39,15 +48,19 @@ function ShopsIndex() {
   });
 
   const productsQ = useQuery({
-    enabled: tab === "products" && term.length > 0,
-    queryKey: ["global-products", term],
+    enabled: tab === "products" && debounced.length > 0,
+    queryKey: ["global-products", debounced],
+    staleTime: 2 * 60_000,
+    gcTime: 15 * 60_000,
+    refetchOnWindowFocus: false,
+    placeholderData: (prev) => prev,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("shop_products")
         .select("id,title,price,currency,image_urls,stock,shop_id,shops!inner(slug,name,is_active)")
         .eq("status", "active")
         .eq("shops.is_active", true)
-        .ilike("title", `%${term}%`)
+        .ilike("title", `%${debounced}%`)
         .order("created_at", { ascending: false })
         .limit(60);
       if (error) throw error;
