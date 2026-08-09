@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { I18nProvider } from "../lib/i18n/I18nProvider";
 import { ThemeProvider } from "../lib/theme";
 import { Toaster } from "../components/ui/sonner";
+import { PerfOverlay } from "../components/PerfOverlay";
 import { supabase } from "../integrations/supabase/client";
 
 function NotFoundComponent() {
@@ -134,6 +135,7 @@ function RootComponent() {
         <I18nProvider>
           <Outlet />
           <Toaster position="top-center" />
+          <PerfOverlay />
         </I18nProvider>
       </ThemeProvider>
     </QueryClientProvider>
