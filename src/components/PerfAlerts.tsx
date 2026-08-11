@@ -25,7 +25,13 @@ export function PerfAlerts() {
         alert.reason === "critical"
           ? `${alert.ms}ms (over ${ALERT_CRITICAL_MS}ms critical threshold)`
           : `${ALERT_SLOW_STREAK} fetches in a row over ${SLOW_QUERY_MS}ms — last ${alert.ms}ms`;
-      const body = `${detail} · p95 ${alert.p95Ms}ms · ${alert.slowCount} slow total`;
+      const scope = [
+        alert.dims?.shop ? `shop ${alert.dims.shop}` : null,
+        alert.dims?.category ? `category ${alert.dims.category}` : null,
+      ]
+        .filter(Boolean)
+        .join(" · ");
+      const body = `${detail} · p95 ${alert.p95Ms}ms · ${alert.slowCount} slow total${scope ? ` · ${scope}` : ""}`;
       if (alert.severity === "critical") {
         toast.error(`Slow query: ${alert.name}`, { description: body, duration: 8000 });
       } else {
