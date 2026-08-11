@@ -114,7 +114,10 @@ function finish(m: QueryMetric, name: string, started: number, failed: boolean) 
       `[perf] slow query "${name}" took ${ms}ms${failed ? " (failed)" : ""} — threshold ${SLOW_QUERY_MS}ms`,
     );
     raiseAlert(m, name, ms, failed);
+  } else {
+    noteFastFetch(name);
   }
+
   emit();
 }
 
