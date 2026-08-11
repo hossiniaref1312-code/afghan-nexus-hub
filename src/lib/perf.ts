@@ -75,32 +75,41 @@ export function getPerfSnapshot(): Array<
 
 export function resetPerf() {
   metrics.clear();
+  dimMetrics.clear();
   emit();
 }
 
 /** Record that a query result was consumed (from cache or network). */
-export function recordObservation(name: string) {
+export function recordObservation(name: string, dims?: PerfDims) {
   ensure(name).observations += 1;
+  for (const d of dimKeys(dims)) ensureDim(d).observations += 1;
   emit();
 }
 
 /** Wrap a query function so its duration is measured and slow runs are logged. */
-export async function measureQuery<T>(name: string, fn: () => Promise<T>): Promise<T> {
+export async function measureQuery<T>(name: string, fn: () => Promise<T>, dims?: PerfDims): Promise<T> {
   const started = typeof performance !== "undefined" ? performance.now() : Date.now();
   const m = ensure(name);
   m.fetches += 1;
+  const dkeys = dimKeys(dims);
+  for (const d of dkeys) {
+    const dm = ensureDim(d);
+    dm.fetches += 1;
+    dm.queries.add(name);
+  }
   try {
     const result = await fn();
-    finish(m, name, started, false);
+    finish(m, name, started, false, dkeys);
     return result;
   } catch (err) {
     m.errors += 1;
-    finish(m, name, started, true);
+    for (const d of dkeys) ensureDim(d).errors += 1;
+    finish(m, name, started, true, dkeys);
     throw err;
   }
 }
 
-function finish(m: QueryMetric, name: string, started: number, failed: boolean) {
+function finish(m: QueryMetric, name: string, started: number, failed: boolean, dkeys: DimKey[] = []) {
   const now = typeof performance !== "undefined" ? performance.now() : Date.now();
   const ms = Math.round(now - started);
   m.lastMs = ms;
@@ -113,11 +122,12 @@ function finish(m: QueryMetric, name: string, started: number, failed: boolean) 
     console.warn(
       `[perf] slow query "${name}" took ${ms}ms${failed ? " (failed)" : ""} — threshold ${SLOW_QUERY_MS}ms`,
     );
-    raiseAlert(m, name, ms, failed);
+    raiseAlert(m, name, ms, failed, dkeys);
   } else {
     noteFastFetch(name);
   }
 
+  recordDimDuration(dkeys, ms);
   emit();
 }
 
@@ -144,6 +154,8 @@ export type PerfAlert = {
   severity: "warning" | "critical";
   reason: "critical" | "streak";
   at: number;
+  /** Dimensions (shop / category) this alert is attributed to. */
+  dims?: PerfDims;
 };
 
 type AlertListener = (alert: PerfAlert) => void;
@@ -169,12 +181,136 @@ export function clearPerfAlerts() {
   emit();
 }
 
+/* ------------------------------------------------------------------ */
+/* Per-shop / per-category breakdown                                   */
+/* ------------------------------------------------------------------ */
+
+export type PerfDimKind = "shop" | "category";
+export type PerfDims = Partial<Record<PerfDimKind, string | null | undefined>>;
+type DimKey = `${PerfDimKind}|${string}`;
+
+export type DimMetric = {
+  kind: PerfDimKind;
+  value: string;
+  observations: number;
+  fetches: number;
+  errors: number;
+  slow: number;
+  alerts: number;
+  criticalAlerts: number;
+  lastAlertAt: number;
+  lastMs: number;
+  maxMs: number;
+  totalMs: number;
+  durations: number[];
+  queries: Set<string>;
+};
+
+const dimMetrics = new Map<DimKey, DimMetric>();
+
+function dimKeys(dims?: PerfDims): DimKey[] {
+  if (!dims) return [];
+  const out: DimKey[] = [];
+  for (const kind of ["shop", "category"] as PerfDimKind[]) {
+    const v = dims[kind];
+    if (v) out.push(`${kind}|${v}` as DimKey);
+  }
+  return out;
+}
+
+function dimsFromKeys(keys: DimKey[]): PerfDims | undefined {
+  if (!keys.length) return undefined;
+  const dims: PerfDims = {};
+  for (const k of keys) {
+    const idx = k.indexOf("|");
+    dims[k.slice(0, idx) as PerfDimKind] = k.slice(idx + 1);
+  }
+  return dims;
+}
+
+function ensureDim(key: DimKey): DimMetric {
+  let m = dimMetrics.get(key);
+  if (!m) {
+    const idx = key.indexOf("|");
+    m = {
+      kind: key.slice(0, idx) as PerfDimKind,
+      value: key.slice(idx + 1),
+      observations: 0,
+      fetches: 0,
+      errors: 0,
+      slow: 0,
+      alerts: 0,
+      criticalAlerts: 0,
+      lastAlertAt: 0,
+      lastMs: 0,
+      maxMs: 0,
+      totalMs: 0,
+      durations: [],
+      queries: new Set(),
+    };
+    dimMetrics.set(key, m);
+  }
+  return m;
+}
+
+function recordDimDuration(keys: DimKey[], ms: number) {
+  for (const k of keys) {
+    const m = ensureDim(k);
+    m.lastMs = ms;
+    m.totalMs += ms;
+    m.maxMs = Math.max(m.maxMs, ms);
+    m.durations.push(ms);
+    if (m.durations.length > 100) m.durations.shift();
+    if (ms >= SLOW_QUERY_MS) m.slow += 1;
+  }
+}
+
+export type DimSnapshotRow = Omit<DimMetric, "durations" | "queries"> & {
+  avgMs: number;
+  p95Ms: number;
+  hitRate: number;
+  /** alerts per fetch (0..1) */
+  alertRate: number;
+  /** slow fetches per fetch (0..1) */
+  slowRate: number;
+  queries: string[];
+};
+
+/**
+ * Per-shop and per-category breakdown, sorted by alert rate (then slow rate)
+ * so the first regressing shop/category surfaces at the top.
+ */
+export function getPerfDimensionSnapshot(kind?: PerfDimKind): DimSnapshotRow[] {
+  return Array.from(dimMetrics.values())
+    .filter((m) => !kind || m.kind === kind)
+    .map((m) => {
+      const sorted = [...m.durations].sort((a, b) => a - b);
+      const p95 = sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.95))] : 0;
+      const { durations: _d, queries, ...rest } = m;
+      return {
+        ...rest,
+        avgMs: m.fetches ? m.totalMs / m.fetches : 0,
+        p95Ms: p95,
+        hitRate: m.observations ? 1 - m.fetches / m.observations : 0,
+        alertRate: m.fetches ? m.alerts / m.fetches : 0,
+        slowRate: m.fetches ? m.slow / m.fetches : 0,
+        queries: Array.from(queries),
+      };
+    })
+    .sort((a, b) => b.alertRate - a.alertRate || b.slowRate - a.slowRate || b.p95Ms - a.p95Ms);
+}
+
+export function resetPerfDimensions() {
+  dimMetrics.clear();
+  emit();
+}
+
 function p95For(m: QueryMetric): number {
   const sorted = [...m.durations].sort((a, b) => a - b);
   return sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.95))] : 0;
 }
 
-function raiseAlert(m: QueryMetric, name: string, ms: number, failed: boolean) {
+function raiseAlert(m: QueryMetric, name: string, ms: number, failed: boolean, dkeys: DimKey[] = []) {
   const streak = (slowStreak.get(name) ?? 0) + 1;
   slowStreak.set(name, streak);
 
@@ -197,6 +333,7 @@ function raiseAlert(m: QueryMetric, name: string, ms: number, failed: boolean) {
     severity: critical ? "critical" : "warning",
     reason: critical ? "critical" : "streak",
     at: now,
+    dims: dimsFromKeys(dkeys),
   };
 
   alertHistory.unshift(alert);
@@ -208,6 +345,13 @@ function raiseAlert(m: QueryMetric, name: string, ms: number, failed: boolean) {
         ? ` — exceeded critical threshold ${ALERT_CRITICAL_MS}ms`
         : ` — ${ALERT_SLOW_STREAK} consecutive fetches over ${SLOW_QUERY_MS}ms`),
   );
+
+  for (const d of dkeys) {
+    const dm = ensureDim(d);
+    dm.alerts += 1;
+    if (critical) dm.criticalAlerts += 1;
+    dm.lastAlertAt = now;
+  }
 
   for (const l of alertListeners) l(alert);
 }
