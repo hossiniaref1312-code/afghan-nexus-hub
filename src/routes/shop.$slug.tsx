@@ -27,6 +27,7 @@ function ShopPage() {
   const [sort, setSort] = useState<Sort>("newest");
 
   const shopQ = usePerfQuery("shop/:slug:shop", {
+    dims: { shop: slug },
     queryKey: ["shop", slug],
     staleTime: 5 * 60_000,
     gcTime: 30 * 60_000,
@@ -44,6 +45,7 @@ function ShopPage() {
   });
 
   const categoriesQ = usePerfQuery("shop/:slug:categories", {
+    dims: { shop: slug },
     enabled: !!shopQ.data?.id,
     queryKey: ["shop-categories", shopQ.data?.id],
     staleTime: 10 * 60_000,
@@ -62,6 +64,7 @@ function ShopPage() {
   });
 
   const productsQ = usePerfQuery("shop/:slug:products", {
+    dims: { shop: slug, category: catId ?? "all" },
     enabled: !!shopQ.data?.id,
     queryKey: ["shop-products", shopQ.data?.id],
     staleTime: 2 * 60_000,

@@ -32,6 +32,7 @@ function ShopsIndex() {
   }, [term]);
 
   const shopsQ = usePerfQuery("shop/index:shops-list", {
+    dims: { shop: "__directory__" },
     queryKey: ["shops-list"],
     staleTime: 5 * 60_000,
     gcTime: 30 * 60_000,
@@ -48,6 +49,7 @@ function ShopsIndex() {
   });
 
   const productsQ = usePerfQuery("shop/index:global-products", {
+    dims: { shop: "__directory__", category: "search" },
     enabled: tab === "products" && debounced.length > 0,
     queryKey: ["global-products", debounced],
     staleTime: 2 * 60_000,
