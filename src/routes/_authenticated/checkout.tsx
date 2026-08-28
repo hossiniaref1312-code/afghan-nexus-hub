@@ -70,58 +70,39 @@ function CheckoutPage() {
   const currency = rows[0]?.shop_products?.currency ?? "AFN";
   const shopId = rows[0]?.shop_products?.shop_id;
 
+  const submitOrder = useServerFn(createOrder);
+
   async function placeOrder(e: React.FormEvent) {
     e.preventDefault();
-    if (!user || !shopId || rows.length === 0) return;
+    if (!user || rows.length === 0) return;
     setSubmitting(true);
     try {
-      const { data: order, error } = await supabase
-        .from("shop_orders")
-        .insert({
-          shop_id: shopId,
-          buyer_id: user.id,
-          total,
-          currency,
-          status: reference ? "paid" : "pending",
-          payment_method: method,
-          payment_reference: reference || null,
-          buyer_name: buyerName,
-          buyer_phone: buyerPhone,
-          ship_province: province || null,
-          ship_city: city || null,
-          ship_address: address || null,
-          note: note || null,
-        })
-        .select("id")
-        .single();
-      if (error) throw error;
+      // Prices, totals and stock reservation are computed server-side from the
+      // buyer's cart — nothing price-related is sent from the browser.
+      await submitOrder({
+        data: {
+          paymentMethod: method,
+          buyerName,
+          buyerPhone,
+          paymentReference: reference,
+          shipProvince: province,
+          shipCity: city,
+          shipAddress: address,
+          note,
+        },
+      });
 
-      const orderItems = rows.map((r) => ({
-        order_id: order.id,
-        product_id: r.shop_products!.id,
-        title: r.shop_products!.title,
-        unit_price: r.shop_products!.price,
-        quantity: r.quantity,
-      }));
-      const { error: itemsErr } = await supabase.from("shop_order_items").insert(orderItems);
-      if (itemsErr) throw itemsErr;
-
-      // clear cart
-      const { data: cart } = await supabase
-        .from("shop_carts")
-        .select("id")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      if (cart) await supabase.from("shop_cart_items").delete().eq("cart_id", cart.id);
-
+      await items.refetch();
       toast.success(t("checkout.placed"));
       navigate({ to: "/orders" });
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(toUserMessage(err));
     } finally {
       setSubmitting(false);
     }
   }
+
+
 
   if (!items.isLoading && rows.length === 0) {
     return (
