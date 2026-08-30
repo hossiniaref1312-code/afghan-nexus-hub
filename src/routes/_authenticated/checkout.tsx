@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
@@ -10,9 +9,6 @@ import { useT } from "@/lib/i18n/I18nProvider";
 import { formatCurrency } from "@/lib/currency";
 import { PAYMENT_METHODS, type PaymentMethodKey } from "@/lib/payment-methods";
 import { AF_PROVINCES } from "@/lib/provinces";
-import { createOrder } from "@/lib/orders.functions";
-import { toUserMessage } from "@/lib/errors";
-
 
 export const Route = createFileRoute("/_authenticated/checkout")({
   head: () => ({ meta: [{ title: "Checkout — AfghanMarket" }] }),
@@ -70,39 +66,58 @@ function CheckoutPage() {
   const currency = rows[0]?.shop_products?.currency ?? "AFN";
   const shopId = rows[0]?.shop_products?.shop_id;
 
-  const submitOrder = useServerFn(createOrder);
-
   async function placeOrder(e: React.FormEvent) {
     e.preventDefault();
-    if (!user || rows.length === 0) return;
+    if (!user || !shopId || rows.length === 0) return;
     setSubmitting(true);
     try {
-      // Prices, totals and stock reservation are computed server-side from the
-      // buyer's cart — nothing price-related is sent from the browser.
-      await submitOrder({
-        data: {
-          paymentMethod: method,
-          buyerName,
-          buyerPhone,
-          paymentReference: reference,
-          shipProvince: province,
-          shipCity: city,
-          shipAddress: address,
-          note,
-        },
-      });
+      const { data: order, error } = await supabase
+        .from("shop_orders")
+        .insert({
+          shop_id: shopId,
+          buyer_id: user.id,
+          total,
+          currency,
+          status: reference ? "paid" : "pending",
+          payment_method: method,
+          payment_reference: reference || null,
+          buyer_name: buyerName,
+          buyer_phone: buyerPhone,
+          ship_province: province || null,
+          ship_city: city || null,
+          ship_address: address || null,
+          note: note || null,
+        })
+        .select("id")
+        .single();
+      if (error) throw error;
 
-      await items.refetch();
+      const orderItems = rows.map((r) => ({
+        order_id: order.id,
+        product_id: r.shop_products!.id,
+        title: r.shop_products!.title,
+        unit_price: r.shop_products!.price,
+        quantity: r.quantity,
+      }));
+      const { error: itemsErr } = await supabase.from("shop_order_items").insert(orderItems);
+      if (itemsErr) throw itemsErr;
+
+      // clear cart
+      const { data: cart } = await supabase
+        .from("shop_carts")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (cart) await supabase.from("shop_cart_items").delete().eq("cart_id", cart.id);
+
       toast.success(t("checkout.placed"));
       navigate({ to: "/orders" });
     } catch (err) {
-      toast.error(toUserMessage(err));
+      toast.error((err as Error).message);
     } finally {
       setSubmitting(false);
     }
   }
-
-
 
   if (!items.isLoading && rows.length === 0) {
     return (

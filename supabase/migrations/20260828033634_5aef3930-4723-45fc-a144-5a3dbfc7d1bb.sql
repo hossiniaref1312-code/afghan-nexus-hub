@@ -1,1 +1,0 @@
-REVOKE ALL ON FUNCTION public.restock_cancelled_order() FROM PUBLIC, anon, authenticated;
