@@ -97,7 +97,7 @@ function MyShopPage() {
 
 /* ============ SETUP ============ */
 
-function ShopSetup({ shop, onSaved }: { shop: Shop | null; onSaved: () => void }) {
+function ShopSetup({ shop, onSaved }: { shop: Shop | null | undefined; onSaved: () => void }) {
   const t = useT();
   const { user } = useAuth();
   const [form, setForm] = useState({
@@ -373,12 +373,21 @@ function ProductForm({
   onDone,
 }: {
   shopId: string;
-  product: Product;
+  product: Product | null;
   categories: Category[];
   onDone: () => void;
 }) {
   const t = useT();
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<{
+    title: string;
+    description: string;
+    price: string | number;
+    currency: string;
+    stock: number;
+    images: string;
+    status: string;
+    category_id: string;
+  }>({
     title: product?.title ?? "",
     description: product?.description ?? "",
     price: product?.price ?? "",
