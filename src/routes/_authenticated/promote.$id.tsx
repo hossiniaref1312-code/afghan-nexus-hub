@@ -152,9 +152,7 @@ function PromotePage() {
                   key={p.id}
                   onClick={() => setPkgId(p.id)}
                   className={`flex w-full items-center justify-between rounded-2xl border p-4 text-start transition-colors ${
-                    active
-                      ? "border-primary bg-primary/5 shadow-card"
-                      : "border-border bg-card"
+                    active ? "border-primary bg-primary/5 shadow-card" : "border-border bg-card"
                   }`}
                 >
                   <div>
@@ -193,9 +191,7 @@ function PromotePage() {
                   key={m.key}
                   onClick={() => setMethod(m.key)}
                   className={`flex items-center justify-between rounded-xl border px-4 py-3 text-sm transition-colors ${
-                    method === m.key
-                      ? "border-primary bg-primary/5"
-                      : "border-border bg-card"
+                    method === m.key ? "border-primary bg-primary/5" : "border-border bg-card"
                   }`}
                 >
                   <span className="font-medium">{m.name}</span>

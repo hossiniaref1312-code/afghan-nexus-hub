@@ -3,7 +3,11 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 type Theme = "light" | "dark" | "system";
 const KEY = "afghanmarket.theme";
 
-const ThemeCtx = createContext<{ theme: Theme; setTheme: (t: Theme) => void; resolved: "light" | "dark" } | null>(null);
+const ThemeCtx = createContext<{
+  theme: Theme;
+  setTheme: (t: Theme) => void;
+  resolved: "light" | "dark";
+} | null>(null);
 
 function apply(theme: Theme) {
   if (typeof document === "undefined") return "light" as const;
@@ -19,7 +23,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [resolved, setResolved] = useState<"light" | "dark">("light");
 
   useEffect(() => {
-    const stored = (typeof window !== "undefined" && (localStorage.getItem(KEY) as Theme)) || "system";
+    const stored =
+      (typeof window !== "undefined" && (localStorage.getItem(KEY) as Theme)) || "system";
     setThemeState(stored);
     setResolved(apply(stored));
     const mq = window.matchMedia("(prefers-color-scheme: dark)");

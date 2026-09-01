@@ -118,7 +118,10 @@ export function CategoryFilters({ category, value, onChange, resultsCount }: Pro
               {purposes.length > 0 && (
                 <FilterBlock label={t("filters.purpose")}>
                   <PillGroup
-                    options={[{ v: "", l: t("filters.any") }, ...purposes.map((p) => ({ v: p, l: t(`purpose.${p}`) }))]}
+                    options={[
+                      { v: "", l: t("filters.any") },
+                      ...purposes.map((p) => ({ v: p, l: t(`purpose.${p}`) })),
+                    ]}
                     value={value.purpose ?? ""}
                     onChange={(v) => patch({ purpose: (v || undefined) as PurposeKey | undefined })}
                   />
@@ -133,7 +136,9 @@ export function CategoryFilters({ category, value, onChange, resultsCount }: Pro
                 >
                   <option value="">{t("filters.any")}</option>
                   {AF_PROVINCES.map((p) => (
-                    <option key={p} value={p}>{p}</option>
+                    <option key={p} value={p}>
+                      {p}
+                    </option>
                   ))}
                 </select>
               </FilterBlock>
@@ -144,7 +149,9 @@ export function CategoryFilters({ category, value, onChange, resultsCount }: Pro
                     type="number"
                     min={0}
                     value={value.priceMin ?? ""}
-                    onChange={(e) => patch({ priceMin: e.target.value ? Number(e.target.value) : undefined })}
+                    onChange={(e) =>
+                      patch({ priceMin: e.target.value ? Number(e.target.value) : undefined })
+                    }
                     className="w-full rounded-xl border border-input bg-card px-3 py-2.5 text-sm outline-none"
                   />
                 </FilterBlock>
@@ -153,7 +160,9 @@ export function CategoryFilters({ category, value, onChange, resultsCount }: Pro
                     type="number"
                     min={0}
                     value={value.priceMax ?? ""}
-                    onChange={(e) => patch({ priceMax: e.target.value ? Number(e.target.value) : undefined })}
+                    onChange={(e) =>
+                      patch({ priceMax: e.target.value ? Number(e.target.value) : undefined })
+                    }
                     className="w-full rounded-xl border border-input bg-card px-3 py-2.5 text-sm outline-none"
                   />
                 </FilterBlock>
@@ -208,15 +217,23 @@ export function CategoryFilters({ category, value, onChange, resultsCount }: Pro
 function FilterBlock({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        {label}
+      </div>
       {children}
     </div>
   );
 }
 
 function PillGroup({
-  options, value, onChange,
-}: { options: { v: string; l: string }[]; value: string; onChange: (v: string) => void }) {
+  options,
+  value,
+  onChange,
+}: {
+  options: { v: string; l: string }[];
+  value: string;
+  onChange: (v: string) => void;
+}) {
   return (
     <div className="flex flex-wrap gap-2">
       {options.map((o) => {

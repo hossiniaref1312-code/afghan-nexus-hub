@@ -53,9 +53,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
           Something went wrong
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          {error.message || "Please try again."}
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground">{error.message || "Please try again."}</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {
@@ -85,15 +83,35 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { name: "theme-color", content: "#1e6a52" },
       { title: "AfghanMarket — Buy, sell & discover" },
-      { name: "description", content: "Afghanistan's all-in-one marketplace: real estate, vehicles, marketplace, jobs and services." },
+      {
+        name: "description",
+        content:
+          "Afghanistan's all-in-one marketplace: real estate, vehicles, marketplace, jobs and services.",
+      },
       { property: "og:title", content: "AfghanMarket — Buy, sell & discover" },
-      { property: "og:description", content: "Afghanistan's all-in-one marketplace: real estate, vehicles, marketplace, jobs and services." },
+      {
+        property: "og:description",
+        content:
+          "Afghanistan's all-in-one marketplace: real estate, vehicles, marketplace, jobs and services.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "AfghanMarket — Buy, sell & discover" },
-      { name: "twitter:description", content: "Afghanistan's all-in-one marketplace: real estate, vehicles, marketplace, jobs and services." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/646aeb73-2933-4922-962e-e9f0e5389c1e/id-preview-60755a1d--ed907831-04e9-4916-9860-5611b9094ecc.lovable.app-1781711475544.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/646aeb73-2933-4922-962e-e9f0e5389c1e/id-preview-60755a1d--ed907831-04e9-4916-9860-5611b9094ecc.lovable.app-1781711475544.png" },
+      {
+        name: "twitter:description",
+        content:
+          "Afghanistan's all-in-one marketplace: real estate, vehicles, marketplace, jobs and services.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/646aeb73-2933-4922-962e-e9f0e5389c1e/id-preview-60755a1d--ed907831-04e9-4916-9860-5611b9094ecc.lovable.app-1781711475544.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/646aeb73-2933-4922-962e-e9f0e5389c1e/id-preview-60755a1d--ed907831-04e9-4916-9860-5611b9094ecc.lovable.app-1781711475544.png",
+      },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),

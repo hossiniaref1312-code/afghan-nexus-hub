@@ -18,7 +18,10 @@ export const Route = createFileRoute("/category/$category")({
   head: ({ params }) => ({
     meta: [
       { title: `${categoryLabel(params.category)} — AfghanMarket` },
-      { name: "description", content: `Browse ${categoryLabel(params.category)} listings on AfghanMarket.` },
+      {
+        name: "description",
+        content: `Browse ${categoryLabel(params.category)} listings on AfghanMarket.`,
+      },
     ],
   }),
   component: CategoryPage,
@@ -26,8 +29,11 @@ export const Route = createFileRoute("/category/$category")({
 
 function categoryLabel(key: string) {
   const map: Record<string, string> = {
-    real_estate: "Real Estate", vehicles: "Vehicles", marketplace: "Marketplace",
-    jobs: "Jobs", services: "Services & Ads",
+    real_estate: "Real Estate",
+    vehicles: "Vehicles",
+    marketplace: "Marketplace",
+    jobs: "Jobs",
+    services: "Services & Ads",
   };
   return map[key] ?? key;
 }
@@ -40,11 +46,22 @@ function CategoryPage() {
   const [filters, setFilters] = useState<FiltersState>(DEFAULT_FILTERS);
 
   const listings = useQuery({
-    queryKey: ["listings", category, filters.purpose, filters.province, filters.priceMin, filters.priceMax, filters.sort, filters.q],
+    queryKey: [
+      "listings",
+      category,
+      filters.purpose,
+      filters.province,
+      filters.priceMin,
+      filters.priceMax,
+      filters.sort,
+      filters.q,
+    ],
     queryFn: async () => {
       let q = supabase
         .from("listings")
-        .select("id,title,price,currency,province,area_label,category,is_featured,attributes,created_at,listing_images(url,position)")
+        .select(
+          "id,title,price,currency,province,area_label,category,is_featured,attributes,created_at,listing_images(url,position)",
+        )
         .eq("category", category as CategoryKey)
         .eq("status", "active");
 
@@ -55,8 +72,10 @@ function CategoryPage() {
       if (filters.q) q = q.ilike("title", `%${filters.q}%`);
 
       if (filters.sort === "priceAsc") q = q.order("price", { ascending: true, nullsFirst: false });
-      else if (filters.sort === "priceDesc") q = q.order("price", { ascending: false, nullsFirst: false });
-      else q = q.order("is_featured", { ascending: false }).order("created_at", { ascending: false });
+      else if (filters.sort === "priceDesc")
+        q = q.order("price", { ascending: false, nullsFirst: false });
+      else
+        q = q.order("is_featured", { ascending: false }).order("created_at", { ascending: false });
 
       const { data, error } = await q.limit(200);
       if (error) throw error;
@@ -71,7 +90,11 @@ function CategoryPage() {
     if (attrs.length === 0) return rows;
     return rows.filter((r) => {
       const a = (r.attributes ?? {}) as Record<string, unknown>;
-      return attrs.every(([k, v]) => String(a[k] ?? "").toLowerCase().includes(String(v).toLowerCase()));
+      return attrs.every(([k, v]) =>
+        String(a[k] ?? "")
+          .toLowerCase()
+          .includes(String(v).toLowerCase()),
+      );
     });
   }, [listings.data, filters.attrs]);
 

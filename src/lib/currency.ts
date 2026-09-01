@@ -13,10 +13,12 @@ export function formatCurrency(amount: number | string, currency = "AFN"): strin
 }
 
 export function slugify(input: string): string {
-  return input
-    .toLowerCase()
-    .trim()
-    .replace(/[^\p{L}\p{N}]+/gu, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 60) || `shop-${Math.random().toString(36).slice(2, 8)}`;
+  return (
+    input
+      .toLowerCase()
+      .trim()
+      .replace(/[^\p{L}\p{N}]+/gu, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 60) || `shop-${Math.random().toString(36).slice(2, 8)}`
+  );
 }

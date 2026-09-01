@@ -140,7 +140,11 @@ function ShopsIndex() {
                   >
                     <div className="flex items-center gap-3">
                       {s.logo_url ? (
-                        <img src={s.logo_url} alt={s.name} className="h-12 w-12 rounded-xl object-cover" />
+                        <img
+                          src={s.logo_url}
+                          alt={s.name}
+                          className="h-12 w-12 rounded-xl object-cover"
+                        />
                       ) : (
                         <div className="bg-gradient-brand grid h-12 w-12 place-items-center rounded-xl text-primary-foreground">
                           <Store className="h-6 w-6" />
@@ -154,7 +158,9 @@ function ShopsIndex() {
                       </div>
                     </div>
                     {s.description && (
-                      <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{s.description}</p>
+                      <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">
+                        {s.description}
+                      </p>
                     )}
                   </Link>
                 ))}
@@ -162,7 +168,9 @@ function ShopsIndex() {
             </>
           )
         ) : !term ? (
-          <p className="mt-10 text-center text-sm text-muted-foreground">{t("shop.searchProducts")}</p>
+          <p className="mt-10 text-center text-sm text-muted-foreground">
+            {t("shop.searchProducts")}
+          </p>
         ) : productsQ.isLoading ? (
           <p className="mt-8 text-sm text-muted-foreground">{t("common.loading")}</p>
         ) : !productsQ.data || productsQ.data.length === 0 ? (
@@ -182,7 +190,11 @@ function ShopsIndex() {
                 >
                   <div className="aspect-square w-full overflow-hidden bg-muted">
                     {p.image_urls?.[0] ? (
-                      <img src={p.image_urls[0]} alt={p.title} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
+                      <img
+                        src={p.image_urls[0]}
+                        alt={p.title}
+                        className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                      />
                     ) : (
                       <div className="grid h-full w-full place-items-center text-muted-foreground">
                         <Package className="h-8 w-8" />

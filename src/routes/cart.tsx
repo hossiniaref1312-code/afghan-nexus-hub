@@ -46,7 +46,9 @@ function CartPage() {
       if (!cart) return [] as CartRow[];
       const { data, error } = await supabase
         .from("shop_cart_items")
-        .select("id,quantity,product_id,shop_products(id,title,price,currency,stock,image_urls,shop_id)")
+        .select(
+          "id,quantity,product_id,shop_products(id,title,price,currency,stock,image_urls,shop_id)",
+        )
         .eq("cart_id", cart.id);
       if (error) throw error;
       return (data ?? []) as unknown as CartRow[];
@@ -131,7 +133,9 @@ function CartPage() {
                       min={1}
                       max={p.stock}
                       value={r.quantity}
-                      onChange={(e) => updateQty(r.id, Math.min(p.stock, Number(e.target.value) || 1))}
+                      onChange={(e) =>
+                        updateQty(r.id, Math.min(p.stock, Number(e.target.value) || 1))
+                      }
                       className="w-16 rounded-lg border border-input bg-background px-2 py-1.5 text-center text-sm"
                     />
                     <button
@@ -151,7 +155,9 @@ function CartPage() {
                 <div className="text-xs uppercase tracking-wide text-muted-foreground">
                   {t("cart.total")}
                 </div>
-                <div className="text-2xl font-bold text-primary">{formatCurrency(total, currency)}</div>
+                <div className="text-2xl font-bold text-primary">
+                  {formatCurrency(total, currency)}
+                </div>
               </div>
               <button
                 onClick={() => navigate({ to: "/checkout" })}

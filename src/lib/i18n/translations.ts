@@ -3,9 +3,34 @@
 // Missing keys fall back to English.
 
 export type LangCode =
-  | "en" | "fa" | "ps" | "uz" | "ar" | "de" | "tr" | "fa_IR" | "ur" | "hi"
-  | "ru" | "zh_CN" | "zh_TW" | "fr" | "es" | "it" | "pt" | "nl" | "sv"
-  | "no" | "da" | "fi" | "pl" | "cs" | "ro" | "el" | "ja" | "ko";
+  | "en"
+  | "fa"
+  | "ps"
+  | "uz"
+  | "ar"
+  | "de"
+  | "tr"
+  | "fa_IR"
+  | "ur"
+  | "hi"
+  | "ru"
+  | "zh_CN"
+  | "zh_TW"
+  | "fr"
+  | "es"
+  | "it"
+  | "pt"
+  | "nl"
+  | "sv"
+  | "no"
+  | "da"
+  | "fi"
+  | "pl"
+  | "cs"
+  | "ro"
+  | "el"
+  | "ja"
+  | "ko";
 
 export const LANGUAGES: { code: LangCode; name: string; native: string; rtl?: boolean }[] = [
   { code: "en", name: "English", native: "English" },
@@ -152,7 +177,8 @@ const en: Dict = {
   "browse.cta": "Post the first listing",
 
   "hero.title": "Afghanistan's marketplace, in your language.",
-  "hero.subtitle": "Discover real estate, vehicles, jobs, services and everyday goods from trusted sellers across every province.",
+  "hero.subtitle":
+    "Discover real estate, vehicles, jobs, services and everyday goods from trusted sellers across every province.",
   "hero.cta.browse": "Browse marketplace",
   "hero.cta.post": "Post a listing",
 
@@ -792,7 +818,8 @@ const uz: Dict = {
   "home.recent.empty.body": "AfghanMarket’da birinchi eʼlon bering.",
 
   "hero.title": "Afgʻoniston bozori — sizning tilingizda.",
-  "hero.subtitle": "Har viloyatdan ishonchli sotuvchilardan koʻchmas mulk, transport, ish oʻrinlari, xizmatlar va kundalik tovarlarni toping.",
+  "hero.subtitle":
+    "Har viloyatdan ishonchli sotuvchilardan koʻchmas mulk, transport, ish oʻrinlari, xizmatlar va kundalik tovarlarni toping.",
   "hero.cta.browse": "Bozorni koʻrish",
   "hero.cta.post": "Eʼlon berish",
 
@@ -1020,12 +1047,34 @@ const ur: Dict = {
 const empty: Dict = {};
 
 export const translations: Record<LangCode, Dict> = {
-  en, fa, ps, uz, ar, tr, ur,
+  en,
+  fa,
+  ps,
+  uz,
+  ar,
+  tr,
+  ur,
   fa_IR: fa, // Iranian Persian shares most keys with Dari; use fa dict as base.
-  hi: empty, de: empty,
-  fr: empty, es: empty, it: empty, pt: empty, nl: empty, sv: empty, no: empty,
-  da: empty, fi: empty, pl: empty, cs: empty, ro: empty, el: empty, ru: empty,
-  zh_CN: empty, zh_TW: empty, ja: empty, ko: empty,
+  hi: empty,
+  de: empty,
+  fr: empty,
+  es: empty,
+  it: empty,
+  pt: empty,
+  nl: empty,
+  sv: empty,
+  no: empty,
+  da: empty,
+  fi: empty,
+  pl: empty,
+  cs: empty,
+  ro: empty,
+  el: empty,
+  ru: empty,
+  zh_CN: empty,
+  zh_TW: empty,
+  ja: empty,
+  ko: empty,
 };
 
 export function translate(lang: LangCode, key: string): string {
@@ -1036,4 +1085,3 @@ export function translate(lang: LangCode, key: string): string {
   if (lang === "zh_TW") return translations.zh_CN[key] ?? en[key] ?? key;
   return en[key] ?? key;
 }
-

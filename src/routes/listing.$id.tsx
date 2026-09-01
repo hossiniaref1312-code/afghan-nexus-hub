@@ -1,6 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, Phone, Heart, Flag, MapPin, Clock, MessageCircle, Sparkles } from "lucide-react";
+import {
+  ChevronLeft,
+  Phone,
+  Heart,
+  Flag,
+  MapPin,
+  Clock,
+  MessageCircle,
+  Sparkles,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
@@ -26,7 +35,9 @@ function ListingDetail() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("listings")
-        .select("*, listing_images(url,position), profiles!listings_user_id_fkey(display_name,avatar_url)")
+        .select(
+          "*, listing_images(url,position), profiles!listings_user_id_fkey(display_name,avatar_url)",
+        )
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
@@ -117,7 +128,6 @@ function ListingDetail() {
     navigate({ to: "/messages/$id", params: { id: convId } });
   }
 
-
   if (q.isLoading) {
     return (
       <AppShell hideNav>
@@ -134,9 +144,10 @@ function ListingDetail() {
   }
 
   const l = q.data;
-  const images = (l.listing_images as { url: string; position: number }[] | null)
-    ?.slice()
-    .sort((a, b) => a.position - b.position) ?? [];
+  const images =
+    (l.listing_images as { url: string; position: number }[] | null)
+      ?.slice()
+      .sort((a, b) => a.position - b.position) ?? [];
   const cover = images[imgIdx]?.url;
 
   return (
@@ -178,7 +189,9 @@ function ListingDetail() {
       <div className="space-y-5 px-5 pt-5">
         <div>
           <div className="text-primary text-2xl font-bold">
-            {l.price ? `${new Intl.NumberFormat("en-US").format(Number(l.price))} ${l.currency}` : t("common.free")}
+            {l.price
+              ? `${new Intl.NumberFormat("en-US").format(Number(l.price))} ${l.currency}`
+              : t("common.free")}
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <h1 className="text-xl font-bold tracking-tight">{l.title}</h1>
@@ -193,7 +206,8 @@ function ListingDetail() {
             {l.province && (
               <span className="flex items-center gap-1">
                 <MapPin className="h-3.5 w-3.5" />
-                {l.province}{l.area_label ? ` · ${l.area_label}` : ""}
+                {l.province}
+                {l.area_label ? ` · ${l.area_label}` : ""}
               </span>
             )}
             <span className="flex items-center gap-1">
@@ -204,11 +218,15 @@ function ListingDetail() {
         </div>
 
         {l.description && (
-          <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">{l.description}</p>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
+            {l.description}
+          </p>
         )}
 
         <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
-          <div className="text-xs uppercase tracking-wide text-muted-foreground">{t("listing.by")}</div>
+          <div className="text-xs uppercase tracking-wide text-muted-foreground">
+            {t("listing.by")}
+          </div>
           <div className="mt-1 font-semibold">
             {(l.profiles as { display_name?: string } | null)?.display_name || "—"}
           </div>

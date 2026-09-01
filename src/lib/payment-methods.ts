@@ -3,12 +3,7 @@
 // Account numbers are configured per project — set them in Admin → Settings (future)
 // or replace the empty strings below with your real merchant numbers.
 
-export type PaymentMethodKey =
-  | "mpaisa"
-  | "myMoney"
-  | "hesab_pay"
-  | "bank_transfer"
-  | "cash";
+export type PaymentMethodKey = "mpaisa" | "myMoney" | "hesab_pay" | "bank_transfer" | "cash";
 
 export interface PaymentMethod {
   key: PaymentMethodKey;

@@ -36,7 +36,9 @@ export function CategoryAttributeFields({ category, value, onChange }: Props) {
             >
               <option value="">—</option>
               {f.options?.map((o) => (
-                <option key={o} value={o}>{t(`attr.${f.key}.${o}`)}</option>
+                <option key={o} value={o}>
+                  {t(`attr.${f.key}.${o}`)}
+                </option>
               ))}
             </select>
           ) : (

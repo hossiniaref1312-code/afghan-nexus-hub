@@ -53,7 +53,7 @@ describe("safe error mapping", () => {
   });
 
   it("surfaces only the item title for stock failures", () => {
-    const safe = toSafeOrderError({ message: 'INSUFFICIENT_STOCK:Rice 5kg\nCONTEXT: PL/pgSQL' });
+    const safe = toSafeOrderError({ message: "INSUFFICIENT_STOCK:Rice 5kg\nCONTEXT: PL/pgSQL" });
     expect(safe.code).toBe("INSUFFICIENT_STOCK");
     expect(safe.message).toContain("Rice 5kg");
     expect(safe.message).not.toMatch(/PL\/pgSQL|CONTEXT/);

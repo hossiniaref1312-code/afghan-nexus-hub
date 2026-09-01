@@ -69,7 +69,9 @@ function AdminUsersPage() {
       if (error) return toast.error(error.message);
       toast.success("Removed admin role");
     } else {
-      const { error } = await supabase.from("user_roles").insert({ user_id: userId, role: "admin" });
+      const { error } = await supabase
+        .from("user_roles")
+        .insert({ user_id: userId, role: "admin" });
       if (error) return toast.error(error.message);
       toast.success("Granted admin role");
     }
@@ -115,10 +117,7 @@ function AdminUsersPage() {
         {profiles.data?.map((p) => {
           const isUserAdmin = adminRoles.data?.has(p.id) ?? false;
           return (
-            <div
-              key={p.id}
-              className="rounded-2xl border border-border bg-card p-4 shadow-card"
-            >
+            <div key={p.id} className="rounded-2xl border border-border bg-card p-4 shadow-card">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="truncate font-semibold">

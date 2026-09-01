@@ -23,10 +23,14 @@ function Favorites() {
       if (!user) return [];
       const { data, error } = await supabase
         .from("favorites")
-        .select("listings(id,title,price,currency,province,area_label,category,is_featured,created_at,listing_images(url,position))")
+        .select(
+          "listings(id,title,price,currency,province,area_label,category,is_featured,created_at,listing_images(url,position))",
+        )
         .eq("user_id", user.id);
       if (error) throw error;
-      return (data ?? []).map((r) => r.listings).filter(Boolean) as Parameters<typeof ListingCard>[0]["listing"][];
+      return (data ?? []).map((r) => r.listings).filter(Boolean) as Parameters<
+        typeof ListingCard
+      >[0]["listing"][];
     },
     enabled: !!user,
   });

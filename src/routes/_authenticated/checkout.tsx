@@ -140,10 +140,16 @@ function CheckoutPage() {
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label={t("checkout.province")}>
-              <select value={province} onChange={(e) => setProvince(e.target.value)} className="input">
+              <select
+                value={province}
+                onChange={(e) => setProvince(e.target.value)}
+                className="input"
+              >
                 <option value="">—</option>
                 {AF_PROVINCES.map((p) => (
-                  <option key={p} value={p}>{p}</option>
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
                 ))}
               </select>
             </Field>
@@ -170,9 +176,7 @@ function CheckoutPage() {
                   type="button"
                   onClick={() => setMethod(m.key)}
                   className={`rounded-xl border px-3 py-2.5 text-left text-sm transition-colors ${
-                    method === m.key
-                      ? "border-primary bg-primary/5"
-                      : "border-border bg-card"
+                    method === m.key ? "border-primary bg-primary/5" : "border-border bg-card"
                   }`}
                 >
                   <div className="font-medium">{m.name}</div>

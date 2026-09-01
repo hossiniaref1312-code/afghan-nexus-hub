@@ -12,9 +12,17 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "AfghanMarket — Buy, sell & discover" },
-      { name: "description", content: "Afghanistan's all-in-one marketplace: real estate, vehicles, marketplace, jobs and services." },
+      {
+        name: "description",
+        content:
+          "Afghanistan's all-in-one marketplace: real estate, vehicles, marketplace, jobs and services.",
+      },
       { property: "og:title", content: "AfghanMarket — Buy, sell & discover" },
-      { property: "og:description", content: "Afghanistan's all-in-one marketplace: real estate, vehicles, marketplace, jobs and services." },
+      {
+        property: "og:description",
+        content:
+          "Afghanistan's all-in-one marketplace: real estate, vehicles, marketplace, jobs and services.",
+      },
     ],
   }),
   component: Home,
@@ -29,7 +37,9 @@ function Home() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("listings")
-        .select("id,title,price,currency,province,area_label,category,is_featured,created_at,listing_images(url,position)")
+        .select(
+          "id,title,price,currency,province,area_label,category,is_featured,created_at,listing_images(url,position)",
+        )
         .eq("status", "active")
         .eq("is_featured", true)
         .order("created_at", { ascending: false })
@@ -44,7 +54,9 @@ function Home() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("listings")
-        .select("id,title,price,currency,province,area_label,category,is_featured,created_at,listing_images(url,position)")
+        .select(
+          "id,title,price,currency,province,area_label,category,is_featured,created_at,listing_images(url,position)",
+        )
         .eq("status", "active")
         .order("created_at", { ascending: false })
         .limit(12);
@@ -126,7 +138,9 @@ function Home() {
                 </div>
                 <div className="mt-3">
                   <div className="text-base font-bold leading-tight">{t(`cat.${c.key}`)}</div>
-                  <div className="mt-0.5 text-xs text-muted-foreground">{t(`cat.${c.key}.sub`)}</div>
+                  <div className="mt-0.5 text-xs text-muted-foreground">
+                    {t(`cat.${c.key}.sub`)}
+                  </div>
                 </div>
               </Link>
             );
@@ -167,7 +181,9 @@ function Home() {
           <div className="text-sm text-muted-foreground">{t("common.loading")}</div>
         ) : !recent.data || recent.data.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border p-8 text-center">
-            <div className="text-base font-semibold text-foreground">{t("home.recent.empty.title")}</div>
+            <div className="text-base font-semibold text-foreground">
+              {t("home.recent.empty.title")}
+            </div>
             <div className="mt-1 text-sm text-muted-foreground">{t("home.recent.empty.body")}</div>
             <Link
               to="/sell"

@@ -63,7 +63,9 @@ export function getPerfSnapshot(): Array<
 > {
   return Array.from(metrics.values()).map((m) => {
     const sorted = [...m.durations].sort((a, b) => a - b);
-    const p95 = sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.95))] : 0;
+    const p95 = sorted.length
+      ? sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.95))]
+      : 0;
     return {
       ...m,
       avgMs: m.fetches ? m.totalMs / m.fetches : 0,
@@ -87,7 +89,11 @@ export function recordObservation(name: string, dims?: PerfDims) {
 }
 
 /** Wrap a query function so its duration is measured and slow runs are logged. */
-export async function measureQuery<T>(name: string, fn: () => Promise<T>, dims?: PerfDims): Promise<T> {
+export async function measureQuery<T>(
+  name: string,
+  fn: () => Promise<T>,
+  dims?: PerfDims,
+): Promise<T> {
   const started = typeof performance !== "undefined" ? performance.now() : Date.now();
   const m = ensure(name);
   m.fetches += 1;
@@ -109,7 +115,13 @@ export async function measureQuery<T>(name: string, fn: () => Promise<T>, dims?:
   }
 }
 
-function finish(m: QueryMetric, name: string, started: number, failed: boolean, dkeys: DimKey[] = []) {
+function finish(
+  m: QueryMetric,
+  name: string,
+  started: number,
+  failed: boolean,
+  dkeys: DimKey[] = [],
+) {
   const now = typeof performance !== "undefined" ? performance.now() : Date.now();
   const ms = Math.round(now - started);
   m.lastMs = ms;
@@ -285,7 +297,9 @@ export function getPerfDimensionSnapshot(kind?: PerfDimKind): DimSnapshotRow[] {
     .filter((m) => !kind || m.kind === kind)
     .map((m) => {
       const sorted = [...m.durations].sort((a, b) => a - b);
-      const p95 = sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.95))] : 0;
+      const p95 = sorted.length
+        ? sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.95))]
+        : 0;
       const { durations: _d, queries, ...rest } = m;
       return {
         ...rest,
@@ -310,7 +324,13 @@ function p95For(m: QueryMetric): number {
   return sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.95))] : 0;
 }
 
-function raiseAlert(m: QueryMetric, name: string, ms: number, failed: boolean, dkeys: DimKey[] = []) {
+function raiseAlert(
+  m: QueryMetric,
+  name: string,
+  ms: number,
+  failed: boolean,
+  dkeys: DimKey[] = [],
+) {
   const streak = (slowStreak.get(name) ?? 0) + 1;
   slowStreak.set(name, streak);
 
@@ -394,4 +414,3 @@ export function arePerfAlertsEnabled(): boolean {
     return false;
   }
 }
-

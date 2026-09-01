@@ -45,7 +45,7 @@ function Thread() {
       const { data, error } = await supabase
         .from("conversations")
         .select(
-          "id,buyer_id,seller_id,listing_id, listings(id,title,price,currency,listing_images(url,position)), buyer:profiles!conversations_buyer_id_fkey(id,display_name,avatar_url), seller:profiles!conversations_seller_id_fkey(id,display_name,avatar_url)"
+          "id,buyer_id,seller_id,listing_id, listings(id,title,price,currency,listing_images(url,position)), buyer:profiles!conversations_buyer_id_fkey(id,display_name,avatar_url), seller:profiles!conversations_seller_id_fkey(id,display_name,avatar_url)",
         )
         .eq("id", id)
         .maybeSingle();
@@ -75,7 +75,12 @@ function Thread() {
       .channel(`msgs-${id}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${id}` },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${id}`,
+        },
         (payload) => {
           const m = payload.new as Msg;
           qc.setQueryData<Msg[]>(["messages", id], (prev) => {
@@ -83,7 +88,7 @@ function Thread() {
             if (prev.some((x) => x.id === m.id)) return prev;
             return [...prev, m];
           });
-        }
+        },
       )
       .subscribe();
     return () => {
@@ -134,7 +139,13 @@ function Thread() {
     buyer_id: string;
     seller_id: string;
     listing_id: string;
-    listings: { id: string; title: string; price: number | null; currency: string | null; listing_images: { url: string; position: number }[] | null } | null;
+    listings: {
+      id: string;
+      title: string;
+      price: number | null;
+      currency: string | null;
+      listing_images: { url: string; position: number }[] | null;
+    } | null;
     buyer: { id: string; display_name: string | null; avatar_url: string | null } | null;
     seller: { id: string; display_name: string | null; avatar_url: string | null } | null;
   };
@@ -166,7 +177,9 @@ function Thread() {
           </div>
           <Link to="/listing/$id" params={{ id: c.listing_id }} className="shrink-0">
             <div className="h-10 w-10 overflow-hidden rounded-lg bg-muted">
-              {cover ? <img src={imageUrl(cover)} alt="" className="h-full w-full object-cover" /> : null}
+              {cover ? (
+                <img src={imageUrl(cover)} alt="" className="h-full w-full object-cover" />
+              ) : null}
             </div>
           </Link>
         </header>
@@ -185,15 +198,22 @@ function Thread() {
                   }`}
                 >
                   <div className="whitespace-pre-wrap break-words">{m.body}</div>
-                  <div className={`mt-0.5 text-[10px] ${mine ? "text-primary-foreground/70" : "text-muted-foreground"} text-end`}>
-                    {new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  <div
+                    className={`mt-0.5 text-[10px] ${mine ? "text-primary-foreground/70" : "text-muted-foreground"} text-end`}
+                  >
+                    {new Date(m.created_at).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </div>
                 </div>
               </div>
             );
           })}
           {msgs.data && msgs.data.length === 0 && (
-            <div className="pt-10 text-center text-xs text-muted-foreground">{t("chat.empty.body")}</div>
+            <div className="pt-10 text-center text-xs text-muted-foreground">
+              {t("chat.empty.body")}
+            </div>
           )}
         </div>
 

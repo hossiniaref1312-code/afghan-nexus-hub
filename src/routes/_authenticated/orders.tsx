@@ -22,7 +22,7 @@ function OrdersPage() {
       const { data, error } = await supabase
         .from("shop_orders")
         .select(
-          "id,total,currency,status,payment_method,created_at,shop_id,shops(name,slug),shop_order_items(title,quantity,unit_price)"
+          "id,total,currency,status,payment_method,created_at,shop_id,shops(name,slug),shop_order_items(title,quantity,unit_price)",
         )
         .eq("buyer_id", user!.id)
         .order("created_at", { ascending: false });
@@ -58,7 +58,9 @@ function OrdersPage() {
                 <ul className="mt-3 space-y-1 text-sm">
                   {o.shop_order_items?.map((it: any, i: number) => (
                     <li key={i} className="flex justify-between text-muted-foreground">
-                      <span className="truncate">{it.title} × {it.quantity}</span>
+                      <span className="truncate">
+                        {it.title} × {it.quantity}
+                      </span>
                       <span>{formatCurrency(it.unit_price * it.quantity, o.currency)}</span>
                     </li>
                   ))}

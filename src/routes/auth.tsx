@@ -176,12 +176,10 @@ function AuthPage() {
 
         {/* Method: Email vs Phone */}
         <div className="mt-6 grid grid-cols-2 gap-1 rounded-2xl border border-border bg-card p-1 shadow-card">
-          {(
-            [
-              { k: "email" as Method, icon: Mail, label: t("auth.method.email") },
-              { k: "phone" as Method, icon: Phone, label: t("auth.method.phone") },
-            ]
-          ).map(({ k, icon: Icon, label }) => (
+          {[
+            { k: "email" as Method, icon: Mail, label: t("auth.method.email") },
+            { k: "phone" as Method, icon: Phone, label: t("auth.method.phone") },
+          ].map(({ k, icon: Icon, label }) => (
             <button
               key={k}
               type="button"
@@ -242,7 +240,9 @@ function AuthPage() {
                     >
                       <option value="">—</option>
                       {AF_PROVINCES.map((p) => (
-                        <option key={p} value={p}>{p}</option>
+                        <option key={p} value={p}>
+                          {p}
+                        </option>
                       ))}
                     </select>
                   </Field>
@@ -310,7 +310,9 @@ function AuthPage() {
                         >
                           <option value="">—</option>
                           {AF_PROVINCES.map((p) => (
-                            <option key={p} value={p}>{p}</option>
+                            <option key={p} value={p}>
+                              {p}
+                            </option>
                           ))}
                         </select>
                       </Field>
@@ -381,7 +383,15 @@ function AuthPage() {
   );
 }
 
-function Field({ label, help, children }: { label: string; help?: string; children: React.ReactNode }) {
+function Field({
+  label,
+  help,
+  children,
+}: {
+  label: string;
+  help?: string;
+  children: React.ReactNode;
+}) {
   return (
     <label className="block">
       <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">

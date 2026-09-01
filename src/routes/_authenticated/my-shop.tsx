@@ -49,7 +49,11 @@ function MyShopPage() {
           <div>
             <h1 className="text-2xl font-bold">{t("myShop.title")}</h1>
             {shopQ.data && (
-              <Link to="/shop/$slug" params={{ slug: shopQ.data.slug }} className="text-xs text-primary hover:underline">
+              <Link
+                to="/shop/$slug"
+                params={{ slug: shopQ.data.slug }}
+                className="text-xs text-primary hover:underline"
+              >
                 /shop/{shopQ.data.slug}
               </Link>
             )}
@@ -57,13 +61,11 @@ function MyShopPage() {
         </div>
 
         <div className="mt-6 flex flex-wrap gap-1 rounded-2xl border border-border bg-card p-1">
-          {(
-            [
-              { k: "setup" as Tab, label: t("myShop.setup"), icon: Store },
-              { k: "products" as Tab, label: t("myShop.products"), icon: Package },
-              { k: "orders" as Tab, label: t("myShop.orders"), icon: ClipboardList },
-            ]
-          ).map(({ k, label, icon: Icon }) => (
+          {[
+            { k: "setup" as Tab, label: t("myShop.setup"), icon: Store },
+            { k: "products" as Tab, label: t("myShop.products"), icon: Package },
+            { k: "orders" as Tab, label: t("myShop.orders"), icon: ClipboardList },
+          ].map(({ k, label, icon: Icon }) => (
             <button
               key={k}
               onClick={() => setTab(k)}
@@ -127,39 +129,88 @@ function ShopSetup({ shop, onSaved }: { shop: any; onSaved: () => void }) {
   }
 
   return (
-    <form onSubmit={submit} className="grid gap-4 rounded-2xl border border-border bg-card p-5 shadow-card md:grid-cols-2">
+    <form
+      onSubmit={submit}
+      className="grid gap-4 rounded-2xl border border-border bg-card p-5 shadow-card md:grid-cols-2"
+    >
       <Field label={t("myShop.name")}>
-        <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="input" />
+        <input
+          required
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          className="input"
+        />
       </Field>
       <Field label={t("myShop.slug")}>
-        <input value={form.slug} placeholder={slugify(form.name)} onChange={(e) => setForm({ ...form, slug: e.target.value })} className="input" />
+        <input
+          value={form.slug}
+          placeholder={slugify(form.name)}
+          onChange={(e) => setForm({ ...form, slug: e.target.value })}
+          className="input"
+        />
       </Field>
       <Field label={t("myShop.description")} className="md:col-span-2">
-        <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="input min-h-24" />
+        <textarea
+          value={form.description}
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
+          className="input min-h-24"
+        />
       </Field>
       <Field label={t("myShop.logo")}>
-        <input value={form.logo_url} onChange={(e) => setForm({ ...form, logo_url: e.target.value })} className="input" />
+        <input
+          value={form.logo_url}
+          onChange={(e) => setForm({ ...form, logo_url: e.target.value })}
+          className="input"
+        />
       </Field>
       <Field label={t("myShop.banner")}>
-        <input value={form.banner_url} onChange={(e) => setForm({ ...form, banner_url: e.target.value })} className="input" />
+        <input
+          value={form.banner_url}
+          onChange={(e) => setForm({ ...form, banner_url: e.target.value })}
+          className="input"
+        />
       </Field>
       <Field label={t("auth.phone")}>
-        <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="input" />
+        <input
+          value={form.phone}
+          onChange={(e) => setForm({ ...form, phone: e.target.value })}
+          className="input"
+        />
       </Field>
       <Field label={t("checkout.province")}>
-        <input value={form.province} onChange={(e) => setForm({ ...form, province: e.target.value })} className="input" />
+        <input
+          value={form.province}
+          onChange={(e) => setForm({ ...form, province: e.target.value })}
+          className="input"
+        />
       </Field>
       <Field label={t("checkout.city")}>
-        <input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className="input" />
+        <input
+          value={form.city}
+          onChange={(e) => setForm({ ...form, city: e.target.value })}
+          className="input"
+        />
       </Field>
       <Field label={t("myShop.address")} className="md:col-span-2">
-        <input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="input" />
+        <input
+          value={form.address}
+          onChange={(e) => setForm({ ...form, address: e.target.value })}
+          className="input"
+        />
       </Field>
       <label className="flex items-center gap-2 text-sm md:col-span-2">
-        <input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />
+        <input
+          type="checkbox"
+          checked={form.is_active}
+          onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
+        />
         {t("myShop.active")}
       </label>
-      <button type="submit" disabled={saving} className="bg-gradient-brand rounded-2xl py-3 text-sm font-semibold text-primary-foreground shadow-elevated disabled:opacity-50 md:col-span-2">
+      <button
+        type="submit"
+        disabled={saving}
+        className="bg-gradient-brand rounded-2xl py-3 text-sm font-semibold text-primary-foreground shadow-elevated disabled:opacity-50 md:col-span-2"
+      >
         {saving ? t("common.loading") : t("myShop.save")}
       </button>
 
@@ -168,10 +219,20 @@ function ShopSetup({ shop, onSaved }: { shop: any; onSaved: () => void }) {
   );
 }
 
-function Field({ label, className, children }: { label: string; className?: string; children: React.ReactNode }) {
+function Field({
+  label,
+  className,
+  children,
+}: {
+  label: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
   return (
     <label className={`block ${className ?? ""}`}>
-      <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        {label}
+      </div>
       {children}
     </label>
   );
@@ -221,11 +282,18 @@ function ProductsTab({ shopId }: { shopId: string }) {
 
   return (
     <div>
-      <CategoriesManager shopId={shopId} categories={categories.data ?? []} onChange={() => categories.refetch()} />
+      <CategoriesManager
+        shopId={shopId}
+        categories={categories.data ?? []}
+        onChange={() => categories.refetch()}
+      />
 
       <div className="mb-4 mt-6 flex justify-end">
         <button
-          onClick={() => { setEditing(null); setCreating(true); }}
+          onClick={() => {
+            setEditing(null);
+            setCreating(true);
+          }}
           className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
         >
           <Plus className="h-4 w-4" /> {t("myShop.addProduct")}
@@ -252,7 +320,10 @@ function ProductsTab({ shopId }: { shopId: string }) {
       ) : (
         <ul className="mt-4 space-y-2">
           {products.data.map((p) => (
-            <li key={p.id} className="flex items-center gap-3 rounded-xl border border-border bg-card p-3">
+            <li
+              key={p.id}
+              className="flex items-center gap-3 rounded-xl border border-border bg-card p-3"
+            >
               <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted">
                 {p.image_urls?.[0] && (
                   <img src={p.image_urls[0]} alt="" className="h-full w-full object-cover" />
@@ -265,7 +336,10 @@ function ProductsTab({ shopId }: { shopId: string }) {
                 </div>
               </div>
               <button
-                onClick={() => { setCreating(false); setEditing(p); }}
+                onClick={() => {
+                  setCreating(false);
+                  setEditing(p);
+                }}
                 className="grid h-9 w-9 place-items-center rounded-lg text-muted-foreground hover:bg-accent"
               >
                 <Pencil className="h-4 w-4" />
@@ -286,7 +360,17 @@ function ProductsTab({ shopId }: { shopId: string }) {
 
 type Category = { id: string; name: string; sort_order: number };
 
-function ProductForm({ shopId, product, categories, onDone }: { shopId: string; product: any; categories: Category[]; onDone: () => void }) {
+function ProductForm({
+  shopId,
+  product,
+  categories,
+  onDone,
+}: {
+  shopId: string;
+  product: any;
+  categories: Category[];
+  onDone: () => void;
+}) {
   const t = useT();
   const [form, setForm] = useState({
     title: product?.title ?? "",
@@ -313,7 +397,10 @@ function ProductForm({ shopId, product, categories, onDone }: { shopId: string; 
         stock: Number(form.stock),
         status: form.status as any,
         category_id: form.category_id || null,
-        image_urls: form.images.split(",").map((s: string) => s.trim()).filter(Boolean),
+        image_urls: form.images
+          .split(",")
+          .map((s: string) => s.trim())
+          .filter(Boolean),
       };
       const { error } = product
         ? await supabase.from("shop_products").update(payload).eq("id", product.id)
@@ -329,42 +416,92 @@ function ProductForm({ shopId, product, categories, onDone }: { shopId: string; 
   }
 
   return (
-    <form onSubmit={submit} className="mb-6 grid gap-3 rounded-2xl border border-border bg-card p-4 md:grid-cols-2">
+    <form
+      onSubmit={submit}
+      className="mb-6 grid gap-3 rounded-2xl border border-border bg-card p-4 md:grid-cols-2"
+    >
       <Field label={t("myShop.productTitle")} className="md:col-span-2">
-        <input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="input" />
+        <input
+          required
+          value={form.title}
+          onChange={(e) => setForm({ ...form, title: e.target.value })}
+          className="input"
+        />
       </Field>
       <Field label={t("post.field.description")} className="md:col-span-2">
-        <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="input min-h-20" />
+        <textarea
+          value={form.description}
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
+          className="input min-h-20"
+        />
       </Field>
       <Field label={t("myShop.productPrice")}>
-        <input required type="number" min="0" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="input" />
+        <input
+          required
+          type="number"
+          min="0"
+          step="0.01"
+          value={form.price}
+          onChange={(e) => setForm({ ...form, price: e.target.value })}
+          className="input"
+        />
       </Field>
       <Field label={t("myShop.productStock")}>
-        <input required type="number" min="0" value={form.stock} onChange={(e) => setForm({ ...form, stock: Number(e.target.value) })} className="input" />
+        <input
+          required
+          type="number"
+          min="0"
+          value={form.stock}
+          onChange={(e) => setForm({ ...form, stock: Number(e.target.value) })}
+          className="input"
+        />
       </Field>
       <Field label={t("myShop.productImages")} className="md:col-span-2">
-        <input value={form.images} onChange={(e) => setForm({ ...form, images: e.target.value })} placeholder="https://..., https://..." className="input" />
+        <input
+          value={form.images}
+          onChange={(e) => setForm({ ...form, images: e.target.value })}
+          placeholder="https://..., https://..."
+          className="input"
+        />
       </Field>
       <Field label={t("myShop.productStatus")}>
-        <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="input">
+        <select
+          value={form.status}
+          onChange={(e) => setForm({ ...form, status: e.target.value })}
+          className="input"
+        >
           <option value="active">active</option>
           <option value="out_of_stock">out_of_stock</option>
           <option value="hidden">hidden</option>
         </select>
       </Field>
       <Field label={t("myShop.productCategory")}>
-        <select value={form.category_id} onChange={(e) => setForm({ ...form, category_id: e.target.value })} className="input">
+        <select
+          value={form.category_id}
+          onChange={(e) => setForm({ ...form, category_id: e.target.value })}
+          className="input"
+        >
           <option value="">{t("myShop.noCategory")}</option>
           {categories.map((c) => (
-            <option key={c.id} value={c.id}>{c.name}</option>
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
           ))}
         </select>
       </Field>
       <div className="flex items-end gap-2">
-        <button type="submit" disabled={saving} className="bg-gradient-brand flex-1 rounded-xl py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50">
+        <button
+          type="submit"
+          disabled={saving}
+          className="bg-gradient-brand flex-1 rounded-xl py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+        >
           {saving ? t("common.loading") : t("common.save")}
         </button>
-        <button type="button" onClick={onDone} className="rounded-xl border border-border px-4 py-2.5 text-sm">
+        <button
+          type="button"
+          onClick={onDone}
+          className="rounded-xl border border-border px-4 py-2.5 text-sm"
+        >
           {t("common.cancel")}
         </button>
       </div>
@@ -395,13 +532,18 @@ function OrdersTab({ shopId }: { shopId: string }) {
   });
 
   async function updateStatus(id: string, status: string) {
-    const { error } = await supabase.from("shop_orders").update({ status: status as any }).eq("id", id);
+    const { error } = await supabase
+      .from("shop_orders")
+      .update({ status: status as any })
+      .eq("id", id);
     if (error) return toast.error(error.message);
     qc.invalidateQueries({ queryKey: ["shop-orders", shopId] });
   }
 
-  if (orders.isLoading) return <p className="text-sm text-muted-foreground">{t("common.loading")}</p>;
-  if (!orders.data || orders.data.length === 0) return <p className="text-sm text-muted-foreground">{t("orders.empty")}</p>;
+  if (orders.isLoading)
+    return <p className="text-sm text-muted-foreground">{t("common.loading")}</p>;
+  if (!orders.data || orders.data.length === 0)
+    return <p className="text-sm text-muted-foreground">{t("orders.empty")}</p>;
 
   return (
     <ul className="space-y-3">
@@ -423,21 +565,30 @@ function OrdersTab({ shopId }: { shopId: string }) {
               className="rounded-lg border border-border bg-background px-2 py-1 text-xs"
             >
               {STATUSES.map((s) => (
-                <option key={s} value={s}>{t(`orders.status.${s}`)}</option>
+                <option key={s} value={s}>
+                  {t(`orders.status.${s}`)}
+                </option>
               ))}
             </select>
           </div>
           <ul className="mt-3 space-y-1 text-sm">
             {o.shop_order_items?.map((it: any, i: number) => (
               <li key={i} className="flex justify-between text-muted-foreground">
-                <span>{it.title} × {it.quantity}</span>
+                <span>
+                  {it.title} × {it.quantity}
+                </span>
                 <span>{formatCurrency(it.unit_price * it.quantity, o.currency)}</span>
               </li>
             ))}
           </ul>
           <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
-            <span className="text-xs text-muted-foreground">{o.payment_method}{o.payment_reference ? ` · ${o.payment_reference}` : ""}</span>
-            <span className="text-lg font-bold text-primary">{formatCurrency(o.total, o.currency)}</span>
+            <span className="text-xs text-muted-foreground">
+              {o.payment_method}
+              {o.payment_reference ? ` · ${o.payment_reference}` : ""}
+            </span>
+            <span className="text-lg font-bold text-primary">
+              {formatCurrency(o.total, o.currency)}
+            </span>
           </div>
         </li>
       ))}
@@ -447,7 +598,15 @@ function OrdersTab({ shopId }: { shopId: string }) {
 
 /* ============ CATEGORIES ============ */
 
-function CategoriesManager({ shopId, categories, onChange }: { shopId: string; categories: Category[]; onChange: () => void }) {
+function CategoriesManager({
+  shopId,
+  categories,
+  onChange,
+}: {
+  shopId: string;
+  categories: Category[];
+  onChange: () => void;
+}) {
   const t = useT();
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
@@ -496,7 +655,10 @@ function CategoriesManager({ shopId, categories, onChange }: { shopId: string; c
       {categories.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-2">
           {categories.map((c) => (
-            <span key={c.id} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1 text-xs">
+            <span
+              key={c.id}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1 text-xs"
+            >
               {c.name}
               <button
                 onClick={() => remove(c.id)}

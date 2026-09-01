@@ -25,7 +25,9 @@ function SellPage() {
   const { user } = useAuth();
   const search = useSearch({ from: "/_authenticated/sell" });
 
-  const [category, setCategory] = useState<CategoryKey>((search.category as CategoryKey) ?? "marketplace");
+  const [category, setCategory] = useState<CategoryKey>(
+    (search.category as CategoryKey) ?? "marketplace",
+  );
   const [purpose, setPurpose] = useState<"sell" | "rent" | "buy" | "hire" | "offer">("sell");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -47,7 +49,11 @@ function SellPage() {
     setSubmitting(true);
     try {
       // Pull contact phone from profile
-      const { data: profile } = await supabase.from("profiles").select("phone").eq("id", user.id).maybeSingle();
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("phone")
+        .eq("id", user.id)
+        .maybeSingle();
 
       const { data: listing, error } = await supabase
         .from("listings")
@@ -116,9 +122,14 @@ function SellPage() {
                 <button
                   key={c.key}
                   type="button"
-                  onClick={() => { setCategory(c.key); setAttributes({}); }}
+                  onClick={() => {
+                    setCategory(c.key);
+                    setAttributes({});
+                  }}
                   className={`flex flex-col items-center gap-1 rounded-2xl border p-3 text-xs transition-all ${
-                    active ? "border-primary bg-primary/5 text-primary font-semibold" : "border-border bg-card text-muted-foreground"
+                    active
+                      ? "border-primary bg-primary/5 text-primary font-semibold"
+                      : "border-border bg-card text-muted-foreground"
                   }`}
                 >
                   <Icon className="h-5 w-5" />
@@ -137,7 +148,9 @@ function SellPage() {
                 type="button"
                 onClick={() => setPurpose(p)}
                 className={`rounded-xl border px-3 py-2 text-xs font-medium transition-colors ${
-                  purpose === p ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground"
+                  purpose === p
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-card text-muted-foreground"
                 }`}
               >
                 {t(`purpose.${p}`)}
@@ -184,7 +197,9 @@ function SellPage() {
             >
               <option value="">—</option>
               {AF_PROVINCES.map((p) => (
-                <option key={p} value={p}>{p}</option>
+                <option key={p} value={p}>
+                  {p}
+                </option>
               ))}
             </select>
           </Field>
@@ -200,12 +215,13 @@ function SellPage() {
 
         <CategoryAttributeFields category={category} value={attributes} onChange={setAttributes} />
 
-
-
         <Field label={t("post.field.images")}>
           <div className="grid grid-cols-4 gap-2">
             {files.map((f, i) => (
-              <div key={i} className="relative aspect-square overflow-hidden rounded-xl border border-border bg-muted">
+              <div
+                key={i}
+                className="relative aspect-square overflow-hidden rounded-xl border border-border bg-muted"
+              >
                 <img src={URL.createObjectURL(f)} className="h-full w-full object-cover" alt="" />
                 <button
                   type="button"
@@ -246,7 +262,9 @@ function SellPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        {label}
+      </div>
       {children}
     </label>
   );

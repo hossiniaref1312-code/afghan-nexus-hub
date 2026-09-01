@@ -73,7 +73,9 @@ function ShopPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("shop_products")
-        .select("id,title,description,price,currency,stock,image_urls,status,category_id,created_at")
+        .select(
+          "id,title,description,price,currency,stock,image_urls,status,category_id,created_at",
+        )
         .eq("shop_id", shopQ.data!.id)
         .eq("status", "active")
         .order("created_at", { ascending: false });
@@ -86,7 +88,10 @@ function ShopPage() {
     let list = productsQ.data ?? [];
     if (catId) list = list.filter((p) => p.category_id === catId);
     const s = q.trim().toLowerCase();
-    if (s) list = list.filter((p) => p.title?.toLowerCase().includes(s) || p.description?.toLowerCase().includes(s));
+    if (s)
+      list = list.filter(
+        (p) => p.title?.toLowerCase().includes(s) || p.description?.toLowerCase().includes(s),
+      );
     const sorted = [...list];
     if (sort === "price_asc") sorted.sort((a, b) => Number(a.price) - Number(b.price));
     else if (sort === "price_desc") sorted.sort((a, b) => Number(b.price) - Number(a.price));
@@ -122,7 +127,11 @@ function ShopPage() {
           )}
           <div className="flex items-center gap-3 p-4">
             {shop.logo_url ? (
-              <img src={shop.logo_url} alt={shop.name} className="h-14 w-14 rounded-xl object-cover" />
+              <img
+                src={shop.logo_url}
+                alt={shop.name}
+                className="h-14 w-14 rounded-xl object-cover"
+              />
             ) : (
               <div className="grid h-14 w-14 place-items-center rounded-xl bg-primary/10 text-primary">
                 <Store className="h-7 w-7" />
@@ -174,7 +183,9 @@ function ShopPage() {
             <button
               onClick={() => setCatId(null)}
               className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-                !catId ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground"
+                !catId
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border bg-card text-muted-foreground"
               }`}
             >
               {t("shop.allCategories")}
@@ -184,7 +195,9 @@ function ShopPage() {
                 key={c.id}
                 onClick={() => setCatId(c.id)}
                 className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-                  catId === c.id ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground"
+                  catId === c.id
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border bg-card text-muted-foreground"
                 }`}
               >
                 {c.name}
