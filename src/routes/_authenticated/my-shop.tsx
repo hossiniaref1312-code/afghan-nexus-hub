@@ -8,6 +8,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useT } from "@/lib/i18n/I18nProvider";
 import { formatCurrency, slugify } from "@/lib/currency";
+import type { Tables } from "@/integrations/supabase/types";
+
+type Shop = Tables<"shops">;
+type Product = Tables<"shop_products">;
+type ShopOrderItem = Pick<Tables<"shop_order_items">, "title" | "quantity" | "unit_price">;
+type ShopOrder = Tables<"shop_orders"> & { shop_order_items: ShopOrderItem[] | null };
 
 export const Route = createFileRoute("/_authenticated/my-shop")({
   head: () => ({ meta: [{ title: "My shop — AfghanMarket" }] }),
@@ -91,7 +97,7 @@ function MyShopPage() {
 
 /* ============ SETUP ============ */
 
-function ShopSetup({ shop, onSaved }: { shop: any; onSaved: () => void }) {
+function ShopSetup({ shop, onSaved }: { shop: Shop | null; onSaved: () => void }) {
   const t = useT();
   const { user } = useAuth();
   const [form, setForm] = useState({
@@ -243,7 +249,7 @@ function Field({
 function ProductsTab({ shopId }: { shopId: string }) {
   const t = useT();
   const qc = useQueryClient();
-  const [editing, setEditing] = useState<any | null>(null);
+  const [editing, setEditing] = useState<Product | null>(null);
   const [creating, setCreating] = useState(false);
 
   const categories = useQuery({
@@ -367,7 +373,7 @@ function ProductForm({
   onDone,
 }: {
   shopId: string;
-  product: any;
+  product: Product;
   categories: Category[];
   onDone: () => void;
 }) {
@@ -395,7 +401,7 @@ function ProductForm({
         price: Number(form.price),
         currency: form.currency,
         stock: Number(form.stock),
-        status: form.status as any,
+        status: form.status as Product["status"],
         category_id: form.category_id || null,
         image_urls: form.images
           .split(",")
@@ -534,7 +540,7 @@ function OrdersTab({ shopId }: { shopId: string }) {
   async function updateStatus(id: string, status: string) {
     const { error } = await supabase
       .from("shop_orders")
-      .update({ status: status as any })
+      .update({ status: status as Tables<"shop_orders">["status"] })
       .eq("id", id);
     if (error) return toast.error(error.message);
     qc.invalidateQueries({ queryKey: ["shop-orders", shopId] });
@@ -547,7 +553,7 @@ function OrdersTab({ shopId }: { shopId: string }) {
 
   return (
     <ul className="space-y-3">
-      {orders.data.map((o: any) => (
+      {orders.data.map((o: ShopOrder) => (
         <li key={o.id} className="rounded-2xl border border-border bg-card p-4 shadow-card">
           <div className="flex items-start justify-between gap-3">
             <div>
@@ -572,7 +578,7 @@ function OrdersTab({ shopId }: { shopId: string }) {
             </select>
           </div>
           <ul className="mt-3 space-y-1 text-sm">
-            {o.shop_order_items?.map((it: any, i: number) => (
+            {o.shop_order_items?.map((it: ShopOrderItem, i: number) => (
               <li key={i} className="flex justify-between text-muted-foreground">
                 <span>
                   {it.title} × {it.quantity}

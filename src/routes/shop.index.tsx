@@ -6,6 +6,9 @@ import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useT } from "@/lib/i18n/I18nProvider";
 import { formatCurrency } from "@/lib/currency";
+import type { Tables } from "@/integrations/supabase/types";
+
+type ShopProduct = Tables<"shop_products">;
 
 export const Route = createFileRoute("/shop/")({
   head: () => ({
@@ -181,7 +184,7 @@ function ShopsIndex() {
               {t("shop.resultsCount").replace("{n}", String(productsQ.data.length))}
             </p>
             <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-              {productsQ.data.map((p: any) => (
+              {productsQ.data.map((p: ShopProduct) => (
                 <Link
                   key={p.id}
                   to="/product/$id"
