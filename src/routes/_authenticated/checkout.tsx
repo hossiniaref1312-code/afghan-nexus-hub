@@ -9,6 +9,9 @@ import { useT } from "@/lib/i18n/I18nProvider";
 import { formatCurrency } from "@/lib/currency";
 import { PAYMENT_METHODS, type PaymentMethodKey } from "@/lib/payment-methods";
 import { AF_PROVINCES } from "@/lib/provinces";
+import { useServerFn } from "@tanstack/react-start";
+import { placeOrder } from "@/lib/orders.functions";
+import { toSafeOrderError } from "@/lib/order-errors";
 
 export const Route = createFileRoute("/_authenticated/checkout")({
   head: () => ({ meta: [{ title: "Checkout — AfghanMarket" }] }),
@@ -31,6 +34,7 @@ function CheckoutPage() {
   const t = useT();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const placeOrderFn = useServerFn(placeOrder);
 
   const [buyerName, setBuyerName] = useState("");
   const [buyerPhone, setBuyerPhone] = useState("");
@@ -116,7 +120,7 @@ function CheckoutPage() {
       <div className="mx-auto max-w-2xl px-4 py-6 md:px-6">
         <h1 className="text-2xl font-bold">{t("checkout.title")}</h1>
 
-        <form onSubmit={placeOrder} className="mt-6 space-y-4">
+        <form onSubmit={submitOrder} className="mt-6 space-y-4">
           <Field label={t("checkout.buyerName")}>
             <input
               required
