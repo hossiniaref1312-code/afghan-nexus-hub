@@ -49,7 +49,7 @@ function OrdersPage() {
           <p className="mt-8 text-sm text-muted-foreground">{t("orders.empty")}</p>
         ) : (
           <ul className="mt-6 space-y-3">
-            {orders.data.map((o: BuyerOrder) => (
+            {orders.data.map((o) => (
               <li key={o.id} className="rounded-2xl border border-border bg-card p-4 shadow-card">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -63,7 +63,7 @@ function OrdersPage() {
                   </span>
                 </div>
                 <ul className="mt-3 space-y-1 text-sm">
-                  {o.shop_order_items?.map((it: OrderItem, i: number) => (
+                  {o.shop_order_items?.map((it, i: number) => (
                     <li key={i} className="flex justify-between text-muted-foreground">
                       <span className="truncate">
                         {it.title} × {it.quantity}

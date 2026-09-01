@@ -553,7 +553,7 @@ function OrdersTab({ shopId }: { shopId: string }) {
 
   return (
     <ul className="space-y-3">
-      {orders.data.map((o: ShopOrder) => (
+      {orders.data.map((o) => (
         <li key={o.id} className="rounded-2xl border border-border bg-card p-4 shadow-card">
           <div className="flex items-start justify-between gap-3">
             <div>
@@ -578,7 +578,7 @@ function OrdersTab({ shopId }: { shopId: string }) {
             </select>
           </div>
           <ul className="mt-3 space-y-1 text-sm">
-            {o.shop_order_items?.map((it: ShopOrderItem, i: number) => (
+            {o.shop_order_items?.map((it, i: number) => (
               <li key={i} className="flex justify-between text-muted-foreground">
                 <span>
                   {it.title} × {it.quantity}
