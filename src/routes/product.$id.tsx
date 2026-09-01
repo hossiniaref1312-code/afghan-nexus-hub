@@ -101,8 +101,8 @@ function ProductPage() {
         .select("id,product_id,shop_products!inner(shop_id)")
         .eq("cart_id", cartId);
       if (existingItems && existingItems.length > 0) {
-        const firstShop = (existingItems[0] as unknown as { shop_products?: { shop_id?: string } }).shop_products
-          ?.shop_id;
+        const firstShop = (existingItems[0] as unknown as { shop_products?: { shop_id?: string } })
+          .shop_products?.shop_id;
         if (firstShop && firstShop !== product.data.shop_id) {
           toast.error(t("cart.mixedShops"));
           setAdding(false);
