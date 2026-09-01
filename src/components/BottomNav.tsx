@@ -4,10 +4,31 @@ import { useT } from "@/lib/i18n/I18nProvider";
 
 const tabs = [
   { to: "/", icon: Home, key: "nav.home", match: (p: string) => p === "/" },
-  { to: "/favorites", icon: Heart, key: "nav.favorites", match: (p: string) => p.startsWith("/favorites") },
-  { to: "/sell", icon: PlusCircle, key: "nav.sell", match: (p: string) => p.startsWith("/sell"), highlight: true },
-  { to: "/messages", icon: MessageCircle, key: "nav.messages", match: (p: string) => p.startsWith("/messages") },
-  { to: "/profile", icon: User, key: "nav.profile", match: (p: string) => p.startsWith("/profile") },
+  {
+    to: "/favorites",
+    icon: Heart,
+    key: "nav.favorites",
+    match: (p: string) => p.startsWith("/favorites"),
+  },
+  {
+    to: "/sell",
+    icon: PlusCircle,
+    key: "nav.sell",
+    match: (p: string) => p.startsWith("/sell"),
+    highlight: true,
+  },
+  {
+    to: "/messages",
+    icon: MessageCircle,
+    key: "nav.messages",
+    match: (p: string) => p.startsWith("/messages"),
+  },
+  {
+    to: "/profile",
+    icon: User,
+    key: "nav.profile",
+    match: (p: string) => p.startsWith("/profile"),
+  },
 ];
 
 export function BottomNav({ className = "" }: { className?: string }) {

@@ -34,7 +34,9 @@ function Profile() {
       if (!user) return [];
       const { data } = await supabase
         .from("listings")
-        .select("id,title,price,currency,province,area_label,category,is_featured,created_at,listing_images(url,position)")
+        .select(
+          "id,title,price,currency,province,area_label,category,is_featured,created_at,listing_images(url,position)",
+        )
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
       return data ?? [];
@@ -55,7 +57,6 @@ function Profile() {
     },
     enabled: !!user,
   });
-
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -85,8 +86,12 @@ function Profile() {
               <UserIcon className="h-7 w-7" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="truncate text-base font-bold">{profile.data?.display_name || profile.data?.full_name || user.email}</div>
-              <div className="truncate text-xs text-muted-foreground">{profile.data?.phone ?? user.email}</div>
+              <div className="truncate text-base font-bold">
+                {profile.data?.display_name || profile.data?.full_name || user.email}
+              </div>
+              <div className="truncate text-xs text-muted-foreground">
+                {profile.data?.phone ?? user.email}
+              </div>
             </div>
           </div>
 

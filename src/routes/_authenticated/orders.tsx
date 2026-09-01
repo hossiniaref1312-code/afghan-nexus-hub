@@ -5,6 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useT } from "@/lib/i18n/I18nProvider";
 import { formatCurrency } from "@/lib/currency";
+import type { Tables } from "@/integrations/supabase/types";
+
+type OrderItem = Pick<Tables<"shop_order_items">, "title" | "quantity" | "unit_price">;
+type BuyerOrder = Tables<"shop_orders"> & {
+  shops: { name: string } | null;
+  shop_order_items: OrderItem[] | null;
+};
 
 export const Route = createFileRoute("/_authenticated/orders")({
   head: () => ({ meta: [{ title: "My orders — AfghanMarket" }] }),
@@ -22,7 +29,7 @@ function OrdersPage() {
       const { data, error } = await supabase
         .from("shop_orders")
         .select(
-          "id,total,currency,status,payment_method,created_at,shop_id,shops(name,slug),shop_order_items(title,quantity,unit_price)"
+          "id,total,currency,status,payment_method,created_at,shop_id,shops(name,slug),shop_order_items(title,quantity,unit_price)",
         )
         .eq("buyer_id", user!.id)
         .order("created_at", { ascending: false });
@@ -42,7 +49,7 @@ function OrdersPage() {
           <p className="mt-8 text-sm text-muted-foreground">{t("orders.empty")}</p>
         ) : (
           <ul className="mt-6 space-y-3">
-            {orders.data.map((o: any) => (
+            {orders.data.map((o) => (
               <li key={o.id} className="rounded-2xl border border-border bg-card p-4 shadow-card">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -56,9 +63,11 @@ function OrdersPage() {
                   </span>
                 </div>
                 <ul className="mt-3 space-y-1 text-sm">
-                  {o.shop_order_items?.map((it: any, i: number) => (
+                  {o.shop_order_items?.map((it, i: number) => (
                     <li key={i} className="flex justify-between text-muted-foreground">
-                      <span className="truncate">{it.title} × {it.quantity}</span>
+                      <span className="truncate">
+                        {it.title} × {it.quantity}
+                      </span>
                       <span>{formatCurrency(it.unit_price * it.quantity, o.currency)}</span>
                     </li>
                   ))}

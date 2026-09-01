@@ -61,7 +61,7 @@ function Messages() {
       const { data, error } = await supabase
         .from("conversations")
         .select(
-          "id,listing_id,buyer_id,seller_id,last_message_at, listings(id,title,price,currency,listing_images(url,position)), buyer:profiles!conversations_buyer_id_fkey(id,display_name,avatar_url), seller:profiles!conversations_seller_id_fkey(id,display_name,avatar_url)"
+          "id,listing_id,buyer_id,seller_id,last_message_at, listings(id,title,price,currency,listing_images(url,position)), buyer:profiles!conversations_buyer_id_fkey(id,display_name,avatar_url), seller:profiles!conversations_seller_id_fkey(id,display_name,avatar_url)",
         )
         .or(`buyer_id.eq.${user!.id},seller_id.eq.${user!.id}`)
         .order("last_message_at", { ascending: false });
@@ -75,15 +75,11 @@ function Messages() {
     if (!user) return;
     const ch = supabase
       .channel("conv-list-" + user.id)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "conversations" },
-        () => qc.invalidateQueries({ queryKey: ["conversations", user.id] })
+      .on("postgres_changes", { event: "*", schema: "public", table: "conversations" }, () =>
+        qc.invalidateQueries({ queryKey: ["conversations", user.id] }),
       )
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "messages" },
-        () => qc.invalidateQueries({ queryKey: ["conversations", user.id] })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, () =>
+        qc.invalidateQueries({ queryKey: ["conversations", user.id] }),
       )
       .subscribe();
     return () => {
@@ -105,7 +101,9 @@ function Messages() {
             {q.data.map((c) => {
               const otherIsBuyer = c.seller_id === user?.id;
               const other = otherIsBuyer ? c.buyer : c.seller;
-              const cover = c.listings?.listing_images?.slice().sort((a, b) => a.position - b.position)[0]?.url;
+              const cover = c.listings?.listing_images
+                ?.slice()
+                .sort((a, b) => a.position - b.position)[0]?.url;
               return (
                 <li key={c.id}>
                   <Link

@@ -11,11 +11,11 @@ export interface CategoryDef {
 }
 
 export const CATEGORIES: CategoryDef[] = [
-  { key: "real_estate", icon: Home,         tile: "bg-gradient-brand text-primary-foreground" },
-  { key: "vehicles",    icon: Car,          tile: "bg-gradient-warm text-saffron-foreground" },
-  { key: "marketplace", icon: ShoppingBag,  tile: "bg-primary/10 text-primary" },
-  { key: "jobs",        icon: Briefcase,    tile: "bg-saffron/15 text-saffron" },
-  { key: "services",    icon: Megaphone,    tile: "bg-accent text-accent-foreground" },
+  { key: "real_estate", icon: Home, tile: "bg-gradient-brand text-primary-foreground" },
+  { key: "vehicles", icon: Car, tile: "bg-gradient-warm text-saffron-foreground" },
+  { key: "marketplace", icon: ShoppingBag, tile: "bg-primary/10 text-primary" },
+  { key: "jobs", icon: Briefcase, tile: "bg-saffron/15 text-saffron" },
+  { key: "services", icon: Megaphone, tile: "bg-accent text-accent-foreground" },
 ];
 
 export function getCategory(key: string): CategoryDef | undefined {

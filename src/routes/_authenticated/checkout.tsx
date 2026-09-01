@@ -9,6 +9,9 @@ import { useT } from "@/lib/i18n/I18nProvider";
 import { formatCurrency } from "@/lib/currency";
 import { PAYMENT_METHODS, type PaymentMethodKey } from "@/lib/payment-methods";
 import { AF_PROVINCES } from "@/lib/provinces";
+import { useServerFn } from "@tanstack/react-start";
+import { placeOrder } from "@/lib/orders.functions";
+import { toSafeOrderError } from "@/lib/order-errors";
 
 export const Route = createFileRoute("/_authenticated/checkout")({
   head: () => ({ meta: [{ title: "Checkout — AfghanMarket" }] }),
@@ -31,6 +34,7 @@ function CheckoutPage() {
   const t = useT();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const placeOrderFn = useServerFn(placeOrder);
 
   const [buyerName, setBuyerName] = useState("");
   const [buyerPhone, setBuyerPhone] = useState("");
@@ -66,54 +70,34 @@ function CheckoutPage() {
   const currency = rows[0]?.shop_products?.currency ?? "AFN";
   const shopId = rows[0]?.shop_products?.shop_id;
 
-  async function placeOrder(e: React.FormEvent) {
+  async function submitOrder(e: React.FormEvent) {
     e.preventDefault();
-    if (!user || !shopId || rows.length === 0) return;
+    if (!user || rows.length === 0) return;
     setSubmitting(true);
     try {
-      const { data: order, error } = await supabase
-        .from("shop_orders")
-        .insert({
-          shop_id: shopId,
-          buyer_id: user.id,
-          total,
-          currency,
-          status: reference ? "paid" : "pending",
-          payment_method: method,
-          payment_reference: reference || null,
-          buyer_name: buyerName,
-          buyer_phone: buyerPhone,
-          ship_province: province || null,
-          ship_city: city || null,
-          ship_address: address || null,
+      // Trusted write path: pricing, stock and cart clearing happen server-side.
+      const result = await placeOrderFn({
+        data: {
+          paymentMethod: method,
+          buyerName,
+          buyerPhone,
+          paymentReference: reference || null,
+          province: province || null,
+          city: city || null,
+          address: address || null,
           note: note || null,
-        })
-        .select("id")
-        .single();
-      if (error) throw error;
-
-      const orderItems = rows.map((r) => ({
-        order_id: order.id,
-        product_id: r.shop_products!.id,
-        title: r.shop_products!.title,
-        unit_price: r.shop_products!.price,
-        quantity: r.quantity,
-      }));
-      const { error: itemsErr } = await supabase.from("shop_order_items").insert(orderItems);
-      if (itemsErr) throw itemsErr;
-
-      // clear cart
-      const { data: cart } = await supabase
-        .from("shop_carts")
-        .select("id")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      if (cart) await supabase.from("shop_cart_items").delete().eq("cart_id", cart.id);
-
+        },
+      });
+      if (!result.ok) {
+        toast.error(result.message);
+        return;
+      }
+      await items.refetch();
       toast.success(t("checkout.placed"));
       navigate({ to: "/orders" });
     } catch (err) {
-      toast.error((err as Error).message);
+      console.error(err);
+      toast.error(toSafeOrderError(err).message);
     } finally {
       setSubmitting(false);
     }
@@ -136,7 +120,7 @@ function CheckoutPage() {
       <div className="mx-auto max-w-2xl px-4 py-6 md:px-6">
         <h1 className="text-2xl font-bold">{t("checkout.title")}</h1>
 
-        <form onSubmit={placeOrder} className="mt-6 space-y-4">
+        <form onSubmit={submitOrder} className="mt-6 space-y-4">
           <Field label={t("checkout.buyerName")}>
             <input
               required
@@ -156,10 +140,16 @@ function CheckoutPage() {
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label={t("checkout.province")}>
-              <select value={province} onChange={(e) => setProvince(e.target.value)} className="input">
+              <select
+                value={province}
+                onChange={(e) => setProvince(e.target.value)}
+                className="input"
+              >
                 <option value="">—</option>
                 {AF_PROVINCES.map((p) => (
-                  <option key={p} value={p}>{p}</option>
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
                 ))}
               </select>
             </Field>
@@ -186,9 +176,7 @@ function CheckoutPage() {
                   type="button"
                   onClick={() => setMethod(m.key)}
                   className={`rounded-xl border px-3 py-2.5 text-left text-sm transition-colors ${
-                    method === m.key
-                      ? "border-primary bg-primary/5"
-                      : "border-border bg-card"
+                    method === m.key ? "border-primary bg-primary/5" : "border-border bg-card"
                   }`}
                 >
                   <div className="font-medium">{m.name}</div>

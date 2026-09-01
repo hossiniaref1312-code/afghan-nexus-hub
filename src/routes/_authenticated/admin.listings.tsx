@@ -36,7 +36,9 @@ function AdminListingsPage() {
     queryFn: async () => {
       let query = supabase
         .from("listings")
-        .select("id, title, price, currency, category, province, status, is_featured, featured_until, created_at, user_id")
+        .select(
+          "id, title, price, currency, category, province, status, is_featured, featured_until, created_at, user_id",
+        )
         .order("created_at", { ascending: false })
         .limit(200);
       if (status !== "all") query = query.eq("status", status);
@@ -100,7 +102,9 @@ function AdminListingsPage() {
               key={s}
               onClick={() => setStatus(s)}
               className={`flex-1 rounded-xl border px-3 py-2 text-xs font-semibold uppercase tracking-wide ${
-                status === s ? "border-primary bg-primary/5 text-primary" : "border-border text-muted-foreground"
+                status === s
+                  ? "border-primary bg-primary/5 text-primary"
+                  : "border-border text-muted-foreground"
               }`}
             >
               {s}
@@ -130,8 +134,8 @@ function AdminListingsPage() {
                   {l.title}
                 </Link>
                 <div className="mt-0.5 text-xs text-muted-foreground">
-                  {l.category} · {l.province} · {new Intl.NumberFormat("en-US").format(l.price ?? 0)}{" "}
-                  {l.currency}
+                  {l.category} · {l.province} ·{" "}
+                  {new Intl.NumberFormat("en-US").format(l.price ?? 0)} {l.currency}
                 </div>
                 <div className="mt-0.5 text-[11px] text-muted-foreground">
                   {new Date(l.created_at).toLocaleDateString()}

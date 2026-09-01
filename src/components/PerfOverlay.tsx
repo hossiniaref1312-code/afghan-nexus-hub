@@ -97,7 +97,13 @@ export function PerfOverlay() {
                 {dimRows.map((r) => (
                   <tr
                     key={`${r.kind}:${r.value}`}
-                    className={r.alertRate > 0 ? "text-destructive" : r.p95Ms >= SLOW_QUERY_MS ? "text-destructive/70" : ""}
+                    className={
+                      r.alertRate > 0
+                        ? "text-destructive"
+                        : r.p95Ms >= SLOW_QUERY_MS
+                          ? "text-destructive/70"
+                          : ""
+                    }
                     title={r.queries.join(", ")}
                   >
                     <td className="max-w-[160px] truncate px-1">{r.value}</td>

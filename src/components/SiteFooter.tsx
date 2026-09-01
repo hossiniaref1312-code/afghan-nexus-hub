@@ -44,8 +44,12 @@ export function SiteFooter() {
             {t("footer.company")}
           </h3>
           <ul className="mt-3 space-y-2 text-sm">
-            <li><span className="text-foreground/80">{t("footer.about")}</span></li>
-            <li><span className="text-foreground/80">{t("footer.contact")}</span></li>
+            <li>
+              <span className="text-foreground/80">{t("footer.about")}</span>
+            </li>
+            <li>
+              <span className="text-foreground/80">{t("footer.contact")}</span>
+            </li>
           </ul>
         </div>
 
@@ -54,15 +58,21 @@ export function SiteFooter() {
             {t("footer.legal")}
           </h3>
           <ul className="mt-3 space-y-2 text-sm">
-            <li><span className="text-foreground/80">{t("footer.terms")}</span></li>
-            <li><span className="text-foreground/80">{t("footer.privacy")}</span></li>
+            <li>
+              <span className="text-foreground/80">{t("footer.terms")}</span>
+            </li>
+            <li>
+              <span className="text-foreground/80">{t("footer.privacy")}</span>
+            </li>
           </ul>
         </div>
       </div>
 
       <div className="border-t border-border/60">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 text-xs text-muted-foreground md:px-6">
-          <span>© {year} {t("app.name")}. {t("footer.rights")}</span>
+          <span>
+            © {year} {t("app.name")}. {t("footer.rights")}
+          </span>
         </div>
       </div>
     </footer>

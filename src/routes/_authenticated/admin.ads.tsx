@@ -35,7 +35,7 @@ function AdminAdsPage() {
       const { data, error } = await supabase
         .from("ad_orders")
         .select(
-          "id,status,amount_afn,method,reference,payer_phone,admin_note,created_at,listing_id,user_id,listings(title),ad_packages(name,duration_days)"
+          "id,status,amount_afn,method,reference,payer_phone,admin_note,created_at,listing_id,user_id,listings(title),ad_packages(name,duration_days)",
         )
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -77,7 +77,9 @@ function AdminAdsPage() {
       </header>
 
       <div className="space-y-3 px-5 py-6">
-        {orders.isLoading && <div className="text-sm text-muted-foreground">{t("common.loading")}</div>}
+        {orders.isLoading && (
+          <div className="text-sm text-muted-foreground">{t("common.loading")}</div>
+        )}
         {orders.data?.length === 0 && (
           <div className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
             {t("admin.empty")}

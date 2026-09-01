@@ -72,7 +72,10 @@ export function ListingCard({ listing }: { listing: ListingCardData }) {
           {formatPrice(listing.price, listing.currency, t)}
         </div>
         <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-          <span className="truncate">{listing.province ?? ""}{listing.area_label ? ` · ${listing.area_label}` : ""}</span>
+          <span className="truncate">
+            {listing.province ?? ""}
+            {listing.area_label ? ` · ${listing.area_label}` : ""}
+          </span>
           <span className="shrink-0">{timeAgo(listing.created_at)}</span>
         </div>
       </div>

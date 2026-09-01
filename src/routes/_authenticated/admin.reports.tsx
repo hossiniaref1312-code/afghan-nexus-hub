@@ -55,7 +55,10 @@ function AdminReportsPage() {
 
   async function removeListing(listingId: string, reportId: string) {
     if (!window.confirm("Remove reported listing?")) return;
-    const { error } = await supabase.from("listings").update({ status: "rejected" }).eq("id", listingId);
+    const { error } = await supabase
+      .from("listings")
+      .update({ status: "rejected" })
+      .eq("id", listingId);
     if (error) return toast.error(error.message);
     await supabase.from("reports").update({ status: "resolved" }).eq("id", reportId);
     toast.success("Listing removed and report resolved");
@@ -83,7 +86,9 @@ function AdminReportsPage() {
             key={s}
             onClick={() => setFilter(s)}
             className={`flex-1 rounded-xl border px-3 py-2 text-xs font-semibold uppercase tracking-wide ${
-              filter === s ? "border-primary bg-primary/5 text-primary" : "border-border text-muted-foreground"
+              filter === s
+                ? "border-primary bg-primary/5 text-primary"
+                : "border-border text-muted-foreground"
             }`}
           >
             {s}
@@ -114,9 +119,7 @@ function AdminReportsPage() {
                     {listing?.title ?? r.listing_id}
                   </Link>
                   <div className="mt-1 text-xs font-medium text-destructive">{r.reason}</div>
-                  {r.details && (
-                    <p className="mt-1 text-xs text-muted-foreground">{r.details}</p>
-                  )}
+                  {r.details && <p className="mt-1 text-xs text-muted-foreground">{r.details}</p>}
                   <div className="mt-1 text-[11px] text-muted-foreground">
                     {new Date(r.created_at).toLocaleString()}
                   </div>

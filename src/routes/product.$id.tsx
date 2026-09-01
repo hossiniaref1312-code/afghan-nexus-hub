@@ -66,7 +66,12 @@ function ProductPage() {
 
   const relatedQ = useQuery({
     enabled: !!product.data?.shop_id,
-    queryKey: ["product-related", product.data?.shop_id, product.data?.category_id, product.data?.id],
+    queryKey: [
+      "product-related",
+      product.data?.shop_id,
+      product.data?.category_id,
+      product.data?.id,
+    ],
     queryFn: async () => {
       let q = supabase
         .from("shop_products")
@@ -96,7 +101,8 @@ function ProductPage() {
         .select("id,product_id,shop_products!inner(shop_id)")
         .eq("cart_id", cartId);
       if (existingItems && existingItems.length > 0) {
-        const firstShop = (existingItems[0] as any).shop_products?.shop_id;
+        const firstShop = (existingItems[0] as unknown as { shop_products?: { shop_id?: string } })
+          .shop_products?.shop_id;
         if (firstShop && firstShop !== product.data.shop_id) {
           toast.error(t("cart.mixedShops"));
           setAdding(false);
@@ -196,7 +202,9 @@ function ProductPage() {
                   min={1}
                   max={p.stock}
                   value={qty}
-                  onChange={(e) => setQty(Math.max(1, Math.min(p.stock, Number(e.target.value) || 1)))}
+                  onChange={(e) =>
+                    setQty(Math.max(1, Math.min(p.stock, Number(e.target.value) || 1)))
+                  }
                   className="w-20 rounded-xl border border-input bg-card px-3 py-3 text-center text-sm"
                 />
                 <button
@@ -225,7 +233,11 @@ function ProductPage() {
                 >
                   <div className="aspect-square w-full overflow-hidden bg-muted">
                     {r.image_urls?.[0] ? (
-                      <img src={r.image_urls[0]} alt={r.title} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
+                      <img
+                        src={r.image_urls[0]}
+                        alt={r.title}
+                        className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                      />
                     ) : (
                       <div className="grid h-full w-full place-items-center text-muted-foreground">
                         <Store className="h-6 w-6" />
