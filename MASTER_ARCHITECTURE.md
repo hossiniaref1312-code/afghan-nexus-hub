@@ -132,3 +132,34 @@ Enforcement lives in three places, in this order of authority: (1) RLS policies 
 **CI/CD:** on every change — typecheck, lint, unit (Vitest), RLS/authorization tests against a seeded database using per-role sessions, Playwright E2E for the 8 core flows, build. Migrations forward-only and reviewed; no schema change without a migration file.
 
 **Backup/recovery:** rely on managed Postgres PITR; document and rehearse a restore once; export storage bucket inventory; document RTO/RPO and a rollback procedure for a bad migration.
+
+---
+
+## 5. Intentional SECURITY DEFINER exceptions
+
+The database linter reports two `SECURITY DEFINER` functions as executable by signed-in users. Both are **intentional and required**; they are the mechanism by which privileged invariants are enforced, not a bypass of them.
+
+### 5.1 `place_order(...)`
+
+- **Why definer:** ordering must write `shop_orders`, `shop_order_items` and decrement `shop_products.stock` atomically, under `SELECT ... FOR UPDATE` row locks, using authoritative server-side prices. A caller-rights (`SECURITY INVOKER`) function could not hold those cross-table writes behind a single trusted boundary, and direct client writes are exactly the P0-1/P0-2 risk this design removes.
+- **`auth.uid()` protection:** the first statement is `_uid := auth.uid()`, and `NULL` raises `UNAUTHENTICATED`. Every subsequent read and write is scoped to that identity: the cart is selected by `user_id = _uid`, the order is inserted with `buyer_id = _uid`, and items are derived only from that cart. No caller-supplied user, shop, product, price, currency or total is accepted — the client passes only payment method, buyer contact and shipping fields, which are validated in-function (`INVALID_PAYMENT_METHOD`, `MISSING_BUYER_DETAILS`). A signed-in user can therefore only ever place an order for themselves, from their own cart, at prices read from `shop_products`.
+- **Residual surface:** none beyond "an authenticated user can check out their own cart", which is the intended capability. `search_path` is pinned to `public`.
+
+### 5.2 `has_role(_user_id uuid, _role app_role)`
+
+- **Why definer:** it is the anti-recursion primitive for RLS. Policies on other tables call it; if it ran with caller rights, reading `user_roles` inside a policy would re-enter RLS on `user_roles` and either recurse or leak role data through readable policies.
+- **`auth.uid()` protection:** the function is a `STABLE` read-only `EXISTS` over `public.user_roles`. It writes nothing and grants nothing. Call sites always pass `auth.uid()` as `_user_id`; passing another user's id returns only a boolean that reveals no PII beyond role membership, which is already implied by moderation surfaces. Roles live in a dedicated `user_roles` table (never on `profiles`), so no privilege escalation path exists through a user-writable column.
+- **Residual surface:** boolean role probing by authenticated users. Accepted; the alternative (making role checks invoker-rights) would break every RLS policy that depends on it.
+
+Both functions pin `SET search_path = public`, `EXECUTE` has been revoked from `PUBLIC`, and neither is used to *decide* authorization on behalf of `supabaseAdmin` — admin server functions re-check roles through the authenticated client.
+
+### 5.3 Verified concurrency behaviour (M1)
+
+A real two-session test was executed against the live database (two distinct authenticated users, one product with `stock = 1`, both checkouts fired simultaneously through the Data API with a thread barrier):
+
+- exactly one call returned an order id; the other returned a safe `PRODUCT_UNAVAILABLE` code;
+- exactly one `shop_orders` row and one `shop_order_items` row were created;
+- final stock was `0` with status `out_of_stock` — never negative, never double-decremented;
+- the losing buyer's cart was left intact for retry.
+
+The same run also exposed and fixed a real defect: `place_order` used `min(p.shop_id)` on a `uuid`, which does not exist in Postgres, so *every* checkout failed with `42883`. It now uses `(array_agg(DISTINCT p.shop_id))[1]`.
