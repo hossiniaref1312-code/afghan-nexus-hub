@@ -26,23 +26,33 @@ const enabled = Boolean(URL && KEY && ADMIN_KEY);
 let userClient: SupabaseClient | null = null;
 let adminClient: SupabaseClient | null = null;
 let createdUserId = "";
+let createdShopId = "";
+let createdProductId = "";
 
 afterAll(async () => {
   // Teardown: remove every row this test created, then the throwaway user.
   if (adminClient && createdUserId) {
-    await adminClient.from("shop_order_items").delete().neq("id", createdUserId).eq("title", "M2 RPC Test Product"); // eslint-disable-line
-    await adminClient.from("shop_orders").delete().eq("buyer_id", createdUserId);
-    await adminClient.from("shop_cart_items").delete().eq("product_id", createdProductId);
+    const { data: orders } = await adminClient
+      .from("shop_orders")
+      .select("id")
+      .eq("buyer_id", createdUserId);
+    const orderIds = (orders ?? []).map((o: { id: string }) => o.id);
+    if (orderIds.length) {
+      await adminClient.from("shop_order_items").delete().in("order_id", orderIds);
+      await adminClient.from("shop_orders").delete().in("id", orderIds);
+    }
+    if (createdProductId) {
+      await adminClient.from("shop_cart_items").delete().eq("product_id", createdProductId);
+    }
     await adminClient.from("shop_carts").delete().eq("user_id", createdUserId);
-    await adminClient.from("shop_products").delete().eq("shop_id", createdShopId);
-    await adminClient.from("shops").delete().eq("owner_id", createdUserId);
+    if (createdShopId) {
+      await adminClient.from("shop_products").delete().eq("shop_id", createdShopId);
+      await adminClient.from("shops").delete().eq("id", createdShopId);
+    }
     await adminClient.auth.admin.deleteUser(createdUserId);
   }
   if (userClient) await userClient.auth.signOut();
 });
-
-let createdShopId = "";
-let createdProductId = "";
 
 describe.runIf(enabled)("place_order RPC (real backend)", () => {
   it(
