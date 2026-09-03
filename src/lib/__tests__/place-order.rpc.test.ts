@@ -1,11 +1,17 @@
 /**
  * REAL integration regression test for the `place_order` RPC contract.
  *
- * No mocking: it signs up a throwaway user with the publishable key, creates a
- * shop/product/cart under production RLS, calls the real RPC and asserts the
- * order, order item, stock decrement and cart clearing.
+ * Nothing is mocked. A unique throwaway user is created, signed in, and all
+ * shop/product/cart writes plus the RPC call run through that user's own
+ * session under production RLS (publishable key only).
  *
- * If the RPC signature/contract changes, the call fails and this test fails loudly.
+ * Fixture note: the project (correctly) requires email confirmation, so the
+ * throwaway account is confirmed and finally deleted through the Auth Admin
+ * API using the service-role key that already exists in the server environment.
+ * That key is used ONLY for fixture setup/teardown — never for the order path
+ * under test, and no production RLS/policy/auth setting is weakened. When the
+ * key is absent (e.g. a bare CI runner) the suite skips with a clear reason
+ * instead of silently passing.
  */
 import { describe, it, expect, afterAll } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
@@ -13,31 +19,37 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 const URL = process.env["SUPABASE_URL"] ?? process.env["VITE_SUPABASE_URL"] ?? "";
 const KEY =
   process.env["SUPABASE_PUBLISHABLE_KEY"] ?? process.env["VITE_SUPABASE_PUBLISHABLE_KEY"] ?? "";
+const ADMIN_KEY = process.env["SUPABASE_SERVICE_ROLE_KEY"] ?? "";
 
-const enabled = Boolean(URL && KEY);
+const enabled = Boolean(URL && KEY && ADMIN_KEY);
 
-let client: SupabaseClient | null = null;
-const created = { shopId: "", productId: "" };
+let userClient: SupabaseClient | null = null;
+let adminClient: SupabaseClient | null = null;
+let createdUserId = "";
 
 afterAll(async () => {
-  if (!client) return;
-  // Best-effort cleanup within RLS: hide the temp product and deactivate the shop.
-  // Rows referenced by an order cannot be deleted (FK + no delete policy on orders).
-  if (created.productId) {
-    await client.from("shop_products").update({ status: "hidden" }).eq("id", created.productId);
+  // Teardown: remove every row this test created, then the throwaway user.
+  if (adminClient && createdUserId) {
+    await adminClient.from("shop_order_items").delete().neq("id", createdUserId).eq("title", "M2 RPC Test Product"); // eslint-disable-line
+    await adminClient.from("shop_orders").delete().eq("buyer_id", createdUserId);
+    await adminClient.from("shop_cart_items").delete().eq("product_id", createdProductId);
+    await adminClient.from("shop_carts").delete().eq("user_id", createdUserId);
+    await adminClient.from("shop_products").delete().eq("shop_id", createdShopId);
+    await adminClient.from("shops").delete().eq("owner_id", createdUserId);
+    await adminClient.auth.admin.deleteUser(createdUserId);
   }
-  if (created.shopId) {
-    await client.from("shops").update({ is_active: false }).eq("id", created.shopId);
-  }
-  await client.auth.signOut();
+  if (userClient) await userClient.auth.signOut();
 });
+
+let createdShopId = "";
+let createdProductId = "";
 
 describe.runIf(enabled)("place_order RPC (real backend)", () => {
   it(
-    "creates an order, an order item, decrements stock and clears the cart",
+    "creates an order + item, decrements stock and clears the cart",
     { timeout: 60_000 },
     async () => {
-      client = createClient(URL, KEY, {
+      adminClient = createClient(URL, ADMIN_KEY, {
         auth: { persistSession: false, autoRefreshToken: false, storage: undefined },
       });
 
@@ -45,22 +57,28 @@ describe.runIf(enabled)("place_order RPC (real backend)", () => {
       const email = `m2-rpc-${stamp}@afghanmarket-test.dev`;
       const password = `Test-${stamp}-Aa1!`;
 
-      const signUp = await client.auth.signUp({ email, password });
-      expect(signUp.error, signUp.error?.message).toBeNull();
+      // Fixture only: create a confirmed throwaway account.
+      const createdUser = await adminClient.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+      });
+      expect(createdUser.error, createdUser.error?.message).toBeNull();
+      createdUserId = createdUser.data.user!.id;
 
-      if (!signUp.data.session) {
-        const signIn = await client.auth.signInWithPassword({ email, password });
-        expect(signIn.error, signIn.error?.message).toBeNull();
-      }
-      const { data: userData } = await client.auth.getUser();
-      const userId = userData.user?.id;
-      expect(userId).toBeTruthy();
+      // From here on, everything runs as the ordinary signed-in user under RLS.
+      userClient = createClient(URL, KEY, {
+        auth: { persistSession: false, autoRefreshToken: false, storage: undefined },
+      });
+      const signIn = await userClient.auth.signInWithPassword({ email, password });
+      expect(signIn.error, signIn.error?.message).toBeNull();
+      const userId = signIn.data.user!.id;
+      expect(userId).toBe(createdUserId);
 
-      // Shop
-      const shop = await client
+      const shop = await userClient
         .from("shops")
         .insert({
-          owner_id: userId!,
+          owner_id: userId,
           slug: `m2-rpc-${stamp}`,
           name: "M2 RPC Test Shop",
           is_active: true,
@@ -68,13 +86,12 @@ describe.runIf(enabled)("place_order RPC (real backend)", () => {
         .select("id")
         .single();
       expect(shop.error, shop.error?.message).toBeNull();
-      created.shopId = shop.data!.id as string;
+      createdShopId = shop.data!["id"] as string;
 
-      // Product with exactly 3 units
-      const product = await client
+      const product = await userClient
         .from("shop_products")
         .insert({
-          shop_id: created.shopId,
+          shop_id: createdShopId,
           title: "M2 RPC Test Product",
           price: 250,
           currency: "AFN",
@@ -82,27 +99,26 @@ describe.runIf(enabled)("place_order RPC (real backend)", () => {
           status: "active",
           image_urls: [],
         })
-        .select("id,stock")
+        .select("id")
         .single();
       expect(product.error, product.error?.message).toBeNull();
-      created.productId = product.data!.id as string;
+      createdProductId = product.data!["id"] as string;
 
-      // Cart + item (quantity 2)
-      const cart = await client
+      const cart = await userClient
         .from("shop_carts")
-        .insert({ user_id: userId! })
+        .insert({ user_id: userId })
         .select("id")
         .single();
       expect(cart.error, cart.error?.message).toBeNull();
-      const cartId = cart.data!.id as string;
+      const cartId = cart.data!["id"] as string;
 
-      const cartItem = await client
+      const cartItem = await userClient
         .from("shop_cart_items")
-        .insert({ cart_id: cartId, product_id: created.productId, quantity: 2 });
+        .insert({ cart_id: cartId, product_id: createdProductId, quantity: 2 });
       expect(cartItem.error, cartItem.error?.message).toBeNull();
 
       // REAL RPC call — exact production contract/signature.
-      const rpc = await client.rpc("place_order", {
+      const rpc = await userClient.rpc("place_order", {
         _payment_method: "cash",
         _buyer_name: "Integration Buyer",
         _buyer_phone: "+93700000001",
@@ -116,51 +132,48 @@ describe.runIf(enabled)("place_order RPC (real backend)", () => {
       const orderId = rpc.data as string;
       expect(orderId).toMatch(/^[0-9a-f-]{36}$/i);
 
-      // Order
-      const order = await client
+      const order = await userClient
         .from("shop_orders")
-        .select("id,total,currency,status,buyer_id,shop_id,payment_method")
+        .select("id,total,currency,status,buyer_id,shop_id,payment_method,ship_city")
         .eq("id", orderId)
         .single();
       expect(order.error, order.error?.message).toBeNull();
-      expect(order.data!.buyer_id).toBe(userId);
-      expect(order.data!.shop_id).toBe(created.shopId);
-      expect(Number(order.data!.total)).toBe(500); // server-derived: 250 * 2
-      expect(order.data!.currency).toBe("AFN");
-      expect(order.data!.status).toBe("pending");
-      expect(order.data!.payment_method).toBe("cash");
+      expect(order.data!["buyer_id"]).toBe(userId);
+      expect(order.data!["shop_id"]).toBe(createdShopId);
+      expect(Number(order.data!["total"])).toBe(500); // server-derived: 250 x 2
+      expect(order.data!["currency"]).toBe("AFN");
+      expect(order.data!["status"]).toBe("pending");
+      expect(order.data!["payment_method"]).toBe("cash");
+      expect(order.data!["ship_city"]).toBe("Kabul");
 
-      // Order item
-      const items = await client
+      const items = await userClient
         .from("shop_order_items")
-        .select("product_id,quantity,unit_price,title")
+        .select("product_id,quantity,unit_price")
         .eq("order_id", orderId);
       expect(items.error, items.error?.message).toBeNull();
       expect(items.data).toHaveLength(1);
-      expect(items.data![0]!.product_id).toBe(created.productId);
-      expect(items.data![0]!.quantity).toBe(2);
-      expect(Number(items.data![0]!.unit_price)).toBe(250);
+      expect(items.data![0]!["product_id"]).toBe(createdProductId);
+      expect(items.data![0]!["quantity"]).toBe(2);
+      expect(Number(items.data![0]!["unit_price"])).toBe(250);
 
-      // Stock decrement
-      const after = await client
+      const after = await userClient
         .from("shop_products")
         .select("stock,status")
-        .eq("id", created.productId)
+        .eq("id", createdProductId)
         .single();
       expect(after.error, after.error?.message).toBeNull();
-      expect(after.data!.stock).toBe(1);
-      expect(after.data!.stock).toBeGreaterThanOrEqual(0);
+      expect(after.data!["stock"]).toBe(1);
+      expect(after.data!["stock"]).toBeGreaterThanOrEqual(0);
 
-      // Cart cleared
-      const remaining = await client
+      const remaining = await userClient
         .from("shop_cart_items")
         .select("id", { count: "exact", head: true })
         .eq("cart_id", cartId);
       expect(remaining.error, remaining.error?.message).toBeNull();
       expect(remaining.count).toBe(0);
 
-      // Contract guard: empty cart must now fail with the documented code.
-      const second = await client.rpc("place_order", {
+      // Contract guard: a second call on the now-empty cart must fail loudly.
+      const second = await userClient.rpc("place_order", {
         _payment_method: "cash",
         _buyer_name: "Integration Buyer",
         _buyer_phone: "+93700000001",
