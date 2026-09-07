@@ -33,10 +33,11 @@ function ListingDetail() {
   const q = useQuery({
     queryKey: ["listing", id],
     queryFn: async () => {
+      // Public payload: explicit columns only — no seller contact PII.
       const { data, error } = await supabase
         .from("listings")
         .select(
-          "*, listing_images(url,position), profiles!listings_user_id_fkey(display_name,avatar_url)",
+          "id,user_id,category,purpose,status,title,description,price,currency,province,area_label,attributes,is_featured,featured_until,view_count,created_at,updated_at, listing_images(url,position), profiles!listings_user_id_fkey(display_name,avatar_url)",
         )
         .eq("id", id)
         .maybeSingle();
@@ -44,6 +45,22 @@ function ListingDetail() {
       return data;
     },
   });
+
+  // Owners (and admins, per RLS) may read their own protected contact record.
+  const ownContact = useQuery({
+    queryKey: ["listing-contact", id, user?.id],
+    enabled: !!user && q.data?.user_id === user?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("listing_contacts")
+        .select("contact_phone")
+        .eq("listing_id", id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
 
   const fav = useQuery({
     queryKey: ["fav", id, user?.id],

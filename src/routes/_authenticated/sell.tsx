@@ -48,7 +48,7 @@ function SellPage() {
     if (!user) return;
     setSubmitting(true);
     try {
-      // Pull contact phone from profile
+      // Contact phone comes from the owner's own profile and is stored privately.
       const { data: profile } = await supabase
         .from("profiles")
         .select("phone")
@@ -68,11 +68,22 @@ function SellPage() {
           province: province || null,
           area_label: area || null,
           attributes: Object.keys(attributes).length ? attributes : {},
-          contact_phone: profile?.phone ?? null,
         })
         .select("id")
         .single();
       if (error) throw error;
+
+      if (profile?.phone) {
+        // RLS on listing_contacts requires listings.user_id = auth.uid().
+        const { error: contactError } = await supabase
+          .from("listing_contacts")
+          .upsert(
+            { listing_id: listing.id, contact_phone: profile.phone },
+            { onConflict: "listing_id" },
+          );
+        if (contactError) throw contactError;
+      }
+
 
       // Upload images
       for (let i = 0; i < files.length; i++) {
