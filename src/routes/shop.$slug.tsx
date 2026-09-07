@@ -35,7 +35,9 @@ function ShopPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("shops")
-        .select("id,slug,name,description,logo_url,banner_url,phone,city,province,address")
+        // Public browsing never selects contact PII (phone/address live in shop_contacts).
+        .select("id,slug,name,description,logo_url,banner_url,city,province")
+
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
