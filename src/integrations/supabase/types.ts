@@ -189,6 +189,38 @@ export type Database = {
           },
         ]
       }
+      listing_contacts: {
+        Row: {
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          listing_id: string
+          updated_at: string
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          listing_id: string
+          updated_at?: string
+        }
+        Update: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          listing_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_contacts_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: true
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listing_images: {
         Row: {
           created_at: string
@@ -226,7 +258,6 @@ export type Database = {
           area_label: string | null
           attributes: Json
           category: Database["public"]["Enums"]["listing_category"]
-          contact_phone: string | null
           created_at: string
           currency: string
           description: string | null
@@ -246,7 +277,6 @@ export type Database = {
           area_label?: string | null
           attributes?: Json
           category: Database["public"]["Enums"]["listing_category"]
-          contact_phone?: string | null
           created_at?: string
           currency?: string
           description?: string | null
@@ -266,7 +296,6 @@ export type Database = {
           area_label?: string | null
           attributes?: Json
           category?: Database["public"]["Enums"]["listing_category"]
-          contact_phone?: string | null
           created_at?: string
           currency?: string
           description?: string | null
@@ -491,6 +520,41 @@ export type Database = {
           },
         ]
       }
+      shop_contacts: {
+        Row: {
+          address: string | null
+          created_at: string
+          email: string | null
+          phone: string | null
+          shop_id: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          phone?: string | null
+          shop_id: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          phone?: string | null
+          shop_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_contacts_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: true
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shop_order_items: {
         Row: {
           created_at: string
@@ -663,7 +727,6 @@ export type Database = {
       }
       shops: {
         Row: {
-          address: string | null
           banner_url: string | null
           city: string | null
           created_at: string
@@ -673,13 +736,11 @@ export type Database = {
           logo_url: string | null
           name: string
           owner_id: string
-          phone: string | null
           province: string | null
           slug: string
           updated_at: string
         }
         Insert: {
-          address?: string | null
           banner_url?: string | null
           city?: string | null
           created_at?: string
@@ -689,13 +750,11 @@ export type Database = {
           logo_url?: string | null
           name: string
           owner_id: string
-          phone?: string | null
           province?: string | null
           slug: string
           updated_at?: string
         }
         Update: {
-          address?: string | null
           banner_url?: string | null
           city?: string | null
           created_at?: string
@@ -705,7 +764,6 @@ export type Database = {
           logo_url?: string | null
           name?: string
           owner_id?: string
-          phone?: string | null
           province?: string | null
           slug?: string
           updated_at?: string
