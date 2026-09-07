@@ -106,13 +106,33 @@ function ShopSetup({ shop, onSaved }: { shop: Shop | null | undefined; onSaved: 
     description: shop?.description ?? "",
     logo_url: shop?.logo_url ?? "",
     banner_url: shop?.banner_url ?? "",
-    phone: shop?.phone ?? "",
+    phone: "",
     province: shop?.province ?? "",
     city: shop?.city ?? "",
-    address: shop?.address ?? "",
+    address: "",
     is_active: shop?.is_active ?? true,
   });
   const [saving, setSaving] = useState(false);
+
+  // Contact PII lives in the protected `shop_contacts` table (owner/admin only).
+  const contactQ = useQuery({
+    enabled: !!shop?.id,
+    queryKey: ["my-shop-contact", shop?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("shop_contacts")
+        .select("phone,address")
+        .eq("shop_id", shop!.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  useEffect(() => {
+    const c = contactQ.data;
+    if (c) setForm((f) => ({ ...f, phone: c.phone ?? "", address: c.address ?? "" }));
+  }, [contactQ.data]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -120,11 +140,27 @@ function ShopSetup({ shop, onSaved }: { shop: Shop | null | undefined; onSaved: 
     setSaving(true);
     try {
       const slug = (form.slug || slugify(form.name)).toLowerCase();
-      const payload = { ...form, slug, owner_id: user.id };
-      const { error } = shop
-        ? await supabase.from("shops").update(payload).eq("id", shop.id)
-        : await supabase.from("shops").insert(payload);
-      if (error) throw error;
+      const { phone, address, ...publicFields } = form;
+      const payload = { ...publicFields, slug, owner_id: user.id };
+      let shopId = shop?.id;
+      if (shop) {
+        const { error } = await supabase.from("shops").update(payload).eq("id", shop.id);
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase.from("shops").insert(payload).select("id").single();
+        if (error) throw error;
+        shopId = data.id;
+      }
+      // Ownership is enforced by RLS on shop_contacts (shops.owner_id = auth.uid()).
+      const { error: contactError } = await supabase.from("shop_contacts").upsert(
+        {
+          shop_id: shopId!,
+          phone: phone.trim() || null,
+          address: address.trim() || null,
+        },
+        { onConflict: "shop_id" },
+      );
+      if (contactError) throw contactError;
       toast.success(t("myShop.saved"));
       onSaved();
     } catch (err) {
@@ -133,6 +169,7 @@ function ShopSetup({ shop, onSaved }: { shop: Shop | null | undefined; onSaved: 
       setSaving(false);
     }
   }
+
 
   return (
     <form
