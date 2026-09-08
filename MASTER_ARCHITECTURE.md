@@ -163,3 +163,41 @@ A real two-session test was executed against the live database (two distinct aut
 - the losing buyer's cart was left intact for retry.
 
 The same run also exposed and fixed a real defect: `place_order` used `min(p.shop_id)` on a `uuid`, which does not exist in Postgres, so *every* checkout failed with `42883`. It now uses `(array_agg(DISTINCT p.shop_id))[1]`.
+
+### 5.4 `has_role` EXECUTE grant correction (P0-4 finding)
+
+Revoking `EXECUTE` from `PUBLIC` on `has_role` also removed it from `anon` and `authenticated`. Because RLS policies on `listings` (and other tables) call `has_role`, *anonymous listing browsing broke entirely* (`42501 permission denied for function has_role`). This was caught by the P0-4 security tests, not by inspection. `EXECUTE` is now granted explicitly to `anon` and `authenticated`; `PUBLIC` remains revoked. The linter warnings 0028/0029 that this produces are the intentional, documented exceptions above.
+
+## 6. P0-4 — Protected contact & PII architecture
+
+### 6.1 Why PII is separated
+
+`listings` and `shops` are, by design, world-readable marketplace tables: anonymous visitors must be able to browse them for the product and SEO to work. Any column on those tables is therefore effectively public. Storing seller phone numbers and shop addresses there meant contact PII for every seller in the country was harvestable by an unauthenticated scraper in a single request. Column-level privacy is not expressible in Postgres RLS, so the PII was moved into separate tables whose *whole row* is private.
+
+### 6.2 Tables
+
+| Table | Columns | Access |
+|---|---|---|
+| `public.listing_contacts` | `listing_id` (PK, FK → `listings`, cascade), `contact_phone`, `contact_email`, timestamps | Read/write only by the owner of the parent listing (`listings.user_id = auth.uid()`) or an admin (`has_role(auth.uid(),'admin')`) |
+| `public.shop_contacts` | `shop_id` (PK, FK → `shops`, cascade), `phone`, `address`, `email`, timestamps | Read/write only by the shop owner (`shops.owner_id = auth.uid()`) or an admin |
+
+No `anon` grant exists on either table. Authenticated non-owners match no policy, so reads return zero rows and writes affect zero rows (never a partial or error-leaking response). RLS is enabled on both; ownership is derived from the parent table, never from a client-supplied field.
+
+### 6.3 Single source of truth and migration
+
+Legacy public columns `listings.contact_phone`, `shops.phone` and `shops.address` were copied into the new tables idempotently and then **dropped**. There is exactly one place where contact PII lives; a public query cannot accidentally re-expose it because the columns no longer exist.
+
+### 6.4 Public/private boundary in the app
+
+- `listing.$id.tsx` — public query selects explicit non-private columns only; a second owner-scoped query reads `listing_contacts`, and the "call" button renders only when `listing.user_id === user.id`.
+- `shop.$slug.tsx` — public shop query never selects phone or address.
+- `sell.tsx` — writes the seller's own phone into `listing_contacts`.
+- `my-shop.tsx` — owner reads/upserts `shop_contacts`; ownership enforced by RLS, not by the form.
+
+### 6.5 Verification
+
+14 real-authorization tests (`src/lib/__tests__/contact-pii.rls.test.ts`) run against the live database with throwaway accounts through anonymous / owner / non-owner / admin sessions using the publishable key only. They cover denial for anonymous and non-owner reads, owner and admin reads, denial of cross-user mutations on both tables, continued anonymous browsing of listings/shops/products, and absence of the private values from `SELECT *` public payloads. The service-role key is used only for fixture creation and teardown, outside the authorization path under test.
+
+### 6.6 Future "Contact Seller"
+
+Contact exchange will not be re-added as a public column. The intended path is a server function (`createServerFn` + `requireSupabaseAuth`) that, for a signed-in user, rate-limits and logs a reveal request and returns the seller's number for a single listing — with in-app chat remaining the default channel.
