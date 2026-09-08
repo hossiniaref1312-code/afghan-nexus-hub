@@ -170,7 +170,6 @@ function ShopSetup({ shop, onSaved }: { shop: Shop | null | undefined; onSaved: 
     }
   }
 
-
   return (
     <form
       onSubmit={submit}

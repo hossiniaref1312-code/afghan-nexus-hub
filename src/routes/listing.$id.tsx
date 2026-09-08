@@ -61,7 +61,6 @@ function ListingDetail() {
     },
   });
 
-
   const fav = useQuery({
     queryKey: ["fav", id, user?.id],
     queryFn: async () => {
@@ -249,9 +248,10 @@ function ListingDetail() {
           </div>
         </div>
 
-        {l.contact_phone && (
+        {/* Private contact number: only ever rendered for the listing owner. */}
+        {l.user_id === user?.id && ownContact.data?.contact_phone && (
           <a
-            href={`tel:${l.contact_phone}`}
+            href={`tel:${ownContact.data.contact_phone}`}
             className="bg-gradient-brand text-primary-foreground tap-highlight-none flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-base font-semibold shadow-elevated"
           >
             <Phone className="h-5 w-5" />

@@ -84,7 +84,6 @@ function SellPage() {
         if (contactError) throw contactError;
       }
 
-
       // Upload images
       for (let i = 0; i < files.length; i++) {
         const f = files[i];
