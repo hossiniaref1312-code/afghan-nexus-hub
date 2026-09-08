@@ -61,7 +61,6 @@ function ListingDetail() {
     },
   });
 
-
   const fav = useQuery({
     queryKey: ["fav", id, user?.id],
     queryFn: async () => {
