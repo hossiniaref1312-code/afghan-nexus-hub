@@ -90,13 +90,11 @@ describe.runIf(enabled)("P0-5 database hardening (real RLS)", () => {
     expect(convo.error, convo.error?.message).toBeNull();
     created.conversationId = convo.data!["id"] as string;
 
-    const msg = await strangerClient
-      .from("messages")
-      .insert({
-        conversation_id: created.conversationId,
-        sender_id: strangerId,
-        body: "ORIGINAL_BODY",
-      });
+    const msg = await strangerClient.from("messages").insert({
+      conversation_id: created.conversationId,
+      sender_id: strangerId,
+      body: "ORIGINAL_BODY",
+    });
     expect(msg.error, msg.error?.message).toBeNull();
   }, 90_000);
 
@@ -255,10 +253,7 @@ describe.runIf(enabled)("P0-5 database hardening (real RLS)", () => {
       .from("user_roles")
       .insert({ user_id: strangerId, role: "admin" });
     expect(error).not.toBeNull();
-    const { data } = await admin
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", strangerId);
+    const { data } = await admin.from("user_roles").select("role").eq("user_id", strangerId);
     expect(data ?? []).toHaveLength(0);
   });
 
@@ -296,12 +291,7 @@ describe.runIf(enabled)("P0-5 database hardening (real RLS)", () => {
   });
 
   it("16. user cannot buy promotion for someone else's listing", async () => {
-    const pkg = await anon
-      .from("ad_packages")
-      .select("id")
-      .eq("active", true)
-      .limit(1)
-      .single();
+    const pkg = await anon.from("ad_packages").select("id").eq("active", true).limit(1).single();
     const { error } = await strangerClient.from("ad_orders").insert({
       user_id: strangerId,
       listing_id: created.listingId,
