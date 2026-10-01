@@ -201,3 +201,27 @@ Legacy public columns `listings.contact_phone`, `shops.phone` and `shops.address
 ### 6.6 Future "Contact Seller"
 
 Contact exchange will not be re-added as a public column. The intended path is a server function (`createServerFn` + `requireSupabaseAuth`) that, for a signed-in user, rate-limits and logs a reveal request and returns the seller's number for a single listing — with in-app chat remaining the default channel.
+
+## 7. P0-5 — Database security hardening
+
+### 7.1 Least-privilege grants
+- `anon`: INSERT/UPDATE/DELETE revoked on every public table. SELECT kept only on public marketplace tables (`listings`, `listing_images`, `shops`, `shop_products`, `shop_categories`, `ad_packages`); revoked on profiles, roles, contacts, chat, favorites, reports, carts, orders, ad orders.
+- `authenticated`: DELETE revoked where no DELETE policy exists (conversations, messages, shop_orders, shop_order_items, profiles, ad_orders). RLS remains the primary control; grants are defence in depth.
+
+### 7.2 Field-level guard triggers (BEFORE, SECURITY DEFINER, EXECUTE revoked from all client roles)
+| Trigger | Rule (non-admin signed-in callers) |
+|---|---|
+| `guard_listing_update` | `user_id`, `is_featured`, `featured_until`, `created_at` immutable; `view_count` may only +1; rejected listings cannot be re-statused (`MODERATED_LISTING_LOCKED`) |
+| `guard_message_update` | only `read_at` may change |
+| `guard_conversation_update` | listing/buyer/seller immutable |
+| `guard_shop_order_update` | seller may change `status` only; totals, buyer, payment, shipping locked |
+| `guard_ad_order_insert` | forces `user_id = auth.uid()`, `status = pending`, `amount_afn` = package price; listing must be caller's |
+| `guard_report_insert` | forces `reporter_id = auth.uid()`, `status = open` |
+Calls with no `auth.uid()` (service role / internal) bypass the guards.
+
+### 7.3 Constraints & storage
+- `reports_status_allowed` (open/resolved/rejected). Existing price/stock/quantity checks retained.
+- `listing-images` bucket: 5 MB per-file limit. MIME allow-list and active-listing-scoped read remain on the backlog (P0-3).
+
+### 7.4 Verification
+`src/lib/__tests__/db-hardening.rls.test.ts` — 19 real-session tests: anon read/write denial, direct order insert denial, cross-user listing edit denial, self-feature / ownership / view-count tampering neutralised, rejected-listing lock, message body + participant immutability, non-participant chat denial, role self-grant denial, ad-order price/status/ownership enforcement, report status enforcement, public browsing intact. Full suite: 43/43 pass. Remaining linter warnings are the three documented intentional ones (§5).
